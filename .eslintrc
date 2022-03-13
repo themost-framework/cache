@@ -1,3 +1,18 @@
 {
-    "parser": "@babel/eslint-parser"
+  "parser": "@babel/eslint-parser",
+  "parserOptions": {
+    "sourceType": "module"
+  },
+  "globals": {
+    "describe": false,
+    "fdescribe": false,
+    "beforeAll": false,
+    "beforeEach": false,
+    "afterAll": false,
+    "afterEach": false,
+    "it": false,
+    "fit": false,
+    "expect": false
+  },
+  "extends": "eslint:recommended"
 }

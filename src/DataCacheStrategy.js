@@ -1,7 +1,8 @@
 import {ConfigurationStrategy, AbstractMethodError, AbstractClassError} from '@themost/common';
 
 class DataCacheStrategy extends ConfigurationStrategy {
-    constructor() {
+    constructor(configuration) {
+        super(configuration);
         if (this.constructor === DataCacheStrategy.prototype.constructor) {
             throw new AbstractClassError();
         }
@@ -14,6 +15,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
      * @param {number=} absoluteExpiration - An absolute expiration time in seconds. This parameter is optional.
      * @returns {Promise<void>}
      */
+    // eslint-disable-next-line no-unused-vars
     async add(key, value, absoluteExpiration) {
         throw new AbstractMethodError();
     }
@@ -24,6 +26,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
      * @param {string} key - A string that represents the key of the cached value to be removed
      * @returns {Promise<void>}
      */
+    // eslint-disable-next-line no-unused-vars
     async remove(key) {
         throw new AbstractMethodError();
     }
@@ -42,6 +45,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
      * @param {string} key
      * @returns {Promise<any>}
      */
+    // eslint-disable-next-line no-unused-vars
     async get(key) {
         throw new AbstractMethodError();
     }

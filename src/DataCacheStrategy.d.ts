@@ -1,4 +1,4 @@
-import {ConfigurationStrategy} from "@themost/common";
+import {ConfigurationBase, ConfigurationStrategy} from "@themost/common";
 
 
 export declare interface DataCacheStrategyBase {
@@ -16,7 +16,7 @@ export declare interface DataCacheFinalize extends DataCacheStrategyBase {
 export declare type GetItemFunction = () => Promise<any>;
 
 export declare abstract class DataCacheStrategy extends ConfigurationStrategy implements DataCacheStrategyBase {
-
+    constructor(configuration: ConfigurationBase);
     abstract add(key: string, value: any, absoluteExpiration?: number): Promise<any>;
     abstract remove(key: string): Promise<any>;
     abstract clear(): Promise<any>;
