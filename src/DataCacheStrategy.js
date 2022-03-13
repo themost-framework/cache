@@ -24,7 +24,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
      * Removes a cached value.
      * @abstract
      * @param {string} key - A string that represents the key of the cached value to be removed
-     * @returns {Promise<void>}
+     * @returns {Promise<any>}
      */
     // eslint-disable-next-line no-unused-vars
     async remove(key) {
