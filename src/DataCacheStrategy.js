@@ -2,7 +2,7 @@ import {ConfigurationStrategy, AbstractMethodError, AbstractClassError} from '@t
 
 class DataCacheStrategy extends ConfigurationStrategy {
     constructor() {
-        if (this.constructor === DataAdapter.prototype.constructor) {
+        if (this.constructor === DataCacheStrategy.prototype.constructor) {
             throw new AbstractClassError();
         }
     }
