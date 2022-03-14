@@ -8,7 +8,7 @@ Important note: This module has been separated from [@themost/data](https://gith
 ## Installation 
     npm i @themost/cache
 
-## Usage
+## Configuration
 
 `@themost/cache#DefaultDataCachingStrategy` is being registered by `@themost/data#DataConfiguration`:
 
