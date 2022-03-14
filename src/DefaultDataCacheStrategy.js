@@ -1,4 +1,4 @@
-import { NodeCache } from 'node-cache';
+const NodeCache = require('node-cache');
 import { DataCacheStrategy } from './DataCacheStrategy';
 import { LangUtils } from '@themost/common';
 
@@ -25,16 +25,12 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      */
     get(key) {
         return new Promise((resolve, reject) => {
-            this.rawCache.get(key, (err, res) => {
-                if (err) {
-                    return reject(err);
-                }
-                const descriptor = Object.getOwnPropertyDescriptor(res, key);
-                if (descriptor == null) {
-                    return resolve();
-                }
-                return resolve(descriptor.value);
-            });
+            try {
+                const result = this.rawCache.get(key);
+                return resolve(result);
+            } catch (err) {
+                return reject(err);
+            }
         });
     }
     
@@ -48,12 +44,12 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      */
     add(key, value, absoluteExpiration) {
         return new Promise((resolve, reject) => {
-            this.rawCache.set(key, value, absoluteExpiration, (err) => {
-                if (err) {
-                    return reject(err);
-                }
+            try {
+                this.rawCache.set(key, value, absoluteExpiration);
                 return resolve();
-            });
+            } catch (err) {
+                return reject(err);
+            }
         });    
     }
     /**
@@ -64,12 +60,12 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      */
     remove(key) {
         return new Promise((resolve, reject) => {
-            this.rawCache.del(key, (err, count) => {
-                if (err) {
-                    return reject(err);
-                }
-                return resolve(count);
-            });
+            try {
+                const count = this.rawCache.del(key);
+                return resolve(!!count);
+            } catch (err) {
+                return reject(err);
+            }
         });
     }
 
