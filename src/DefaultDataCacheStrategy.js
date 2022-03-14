@@ -6,15 +6,16 @@ const CACHE_ABSOLUTE_EXPIRATION = 1200;
 
 class DefaultDataCacheStrategy extends DataCacheStrategy {
 
+    absoluteExpiration;
     constructor(configuration) {
         super(configuration);
-        let expiration = CACHE_ABSOLUTE_EXPIRATION;
+        this.absoluteExpiration = CACHE_ABSOLUTE_EXPIRATION;
         const absoluteExpiration = LangUtils.parseInt(configuration.getSourceAt('settings/cache/absoluteExpiration'));
         if (absoluteExpiration>0) {
-            expiration = absoluteExpiration;
+            this.absoluteExpiration = absoluteExpiration;
         }
         this.rawCache = new NodeCache({
-            stdTTL:expiration
+            stdTTL: this.absoluteExpiration
         });
     }
 
@@ -23,15 +24,8 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @param {string} key
      * @returns {Promise<any>}
      */
-    get(key) {
-        return new Promise((resolve, reject) => {
-            try {
-                const result = this.rawCache.get(key);
-                return resolve(result);
-            } catch (err) {
-                return reject(err);
-            }
-        });
+    async get(key) {
+        return this.rawCache.get(key);
     }
     
     /**
@@ -42,15 +36,8 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @param {number=} absoluteExpiration - An absolute expiration time in seconds. This parameter is optional.
      * @returns {Promise<void>}
      */
-    add(key, value, absoluteExpiration) {
-        return new Promise((resolve, reject) => {
-            try {
-                this.rawCache.set(key, value, absoluteExpiration);
-                return resolve();
-            } catch (err) {
-                return reject(err);
-            }
-        });    
+    async add(key, value, absoluteExpiration) {
+        this.rawCache.set(key, value, absoluteExpiration);   
     }
     /**
      * Removes a cached value.
@@ -58,15 +45,9 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @param {string} key - A string that represents the key of the cached value to be removed
      * @returns {Promise<any>}
      */
-    remove(key) {
-        return new Promise((resolve, reject) => {
-            try {
-                const count = this.rawCache.del(key);
-                return resolve(!!count);
-            } catch (err) {
-                return reject(err);
-            }
-        });
+    async remove(key) {
+        const count = this.rawCache.del(key);
+        return !!count;
     }
 
     /**
@@ -74,15 +55,8 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @abstract
      * @returns {Promise<void>}
      */
-    clear() {
-        return new Promise((resolve, reject) => {
-            try {
-                this.rawCache.flushAll();
-            } catch (err) {
-                return reject(err);
-            }
-            return resolve();
-        });
+    async clear() {
+        this.rawCache.flushAll();
     }
 
     finalize() {

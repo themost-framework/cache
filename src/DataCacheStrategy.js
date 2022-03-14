@@ -7,6 +7,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
             throw new AbstractClassError();
         }
     }
+    /* istanbul ignore next */
     /**
      * Sets a key value pair in cache.
      * @abstract
@@ -20,6 +21,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
         throw new AbstractMethodError();
     }
 
+    /* istanbul ignore next */
     /**
      * Removes a cached value.
      * @abstract
@@ -31,6 +33,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
         throw new AbstractMethodError();
     }
 
+    /* istanbul ignore next */
     /**
      * Flushes cached data.
      * @abstract
@@ -40,7 +43,9 @@ class DataCacheStrategy extends ConfigurationStrategy {
         throw new AbstractMethodError();
     }
 
+    /* istanbul ignore next */
     /**
+     * 
      * Gets a cached value defined by the given key.
      * @param {string} key
      * @returns {Promise<any>}

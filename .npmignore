@@ -1,0 +1,19 @@
+# env
+.DS_Store
+.theia
+.idea
+.vscode
+*.workspace
+.github
+
+# test
+spec/
+jest.config.js
+coverage/
+
+# babel
+babel.config.js
+
+# eslint
+.eslintrc
+.gitpod.yml

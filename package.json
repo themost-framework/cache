@@ -3,6 +3,7 @@
   "version": "2.7.0",
   "description": "MOST web Framework Caching Module",
   "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
     "install-peers": "add-peers",
