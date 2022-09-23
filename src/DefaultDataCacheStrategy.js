@@ -59,6 +59,14 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
         this.rawCache.flushAll();
     }
 
+    /**
+     * @function
+     * @name NodeCache#_killCheckPeriod
+     */
+
+    /**
+     * @returns {Promise<void>}
+     */
     finalize() {
         return this.clear().then(() => {
             // destroy timer

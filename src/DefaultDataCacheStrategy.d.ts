@@ -1,4 +1,4 @@
-import { DataCacheStrategy, DataCacheFinalize } from './DataCacheStrategy';
+import { DataCacheStrategy, DataCacheFinalize, GetItemFunction } from './DataCacheStrategy';
 
 export declare class DefaultDataCacheStrategy extends DataCacheStrategy implements DataCacheFinalize {
 
@@ -7,7 +7,7 @@ export declare class DefaultDataCacheStrategy extends DataCacheStrategy implemen
     remove(key: string): Promise<any>;
     clear(): Promise<any>;
     get(key: string): Promise<any>;
-    getOrDefault(key: string, getFunc: Promise<any>, absoluteExpiration?: number): Promise<any>;
+    getOrDefault(key: string, getFunc: GetItemFunction, absoluteExpiration?: number): Promise<any>;
     finalize(): Promise<void>;
 
 }

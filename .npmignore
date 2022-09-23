@@ -17,3 +17,4 @@ babel.config.js
 # eslint
 .eslintrc
 .gitpod.yml
+.eslintignore
