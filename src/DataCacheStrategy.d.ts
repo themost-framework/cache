@@ -15,7 +15,7 @@ export declare interface DataCacheFinalize extends DataCacheStrategyBase {
 }
 
 export declare abstract class DataCacheStrategy extends ConfigurationStrategy implements DataCacheStrategyBase {
-    constructor(configuration: ConfigurationBase);
+    protected constructor(configuration: ConfigurationBase);
     abstract add(key: string, value: any, absoluteExpiration?: number): Promise<any>;
     abstract remove(key: string): Promise<any>;
     abstract clear(): Promise<any>;
