@@ -16,6 +16,9 @@ jsconfig.json
 # babel
 babel.config.js
 
+# typescript
+tsconfig.json
+
 # rollup
 rollup.config.js
 
