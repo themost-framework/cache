@@ -1,0 +1,12 @@
+{
+  "compilerOptions": {
+    "paths": {
+      "@themost/cache": [
+        "src/index"
+      ],
+      "@themost/cache/platform-server": [
+        "platform-server/src/index"
+      ]
+    }
+  }
+}

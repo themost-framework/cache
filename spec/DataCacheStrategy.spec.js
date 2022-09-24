@@ -1,5 +1,5 @@
 import { AbstractClassError, ConfigurationBase } from '@themost/common';
-import { DataCacheStrategy } from '../src/index';
+import { DataCacheStrategy } from '@themost/cache';
 
 describe('DataCacheStrategy', () => {
     it('should try to create instance', () => {

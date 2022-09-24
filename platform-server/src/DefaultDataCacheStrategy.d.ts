@@ -1,4 +1,4 @@
-import { DataCacheStrategy, DataCacheFinalize, GetItemFunction } from './DataCacheStrategy';
+import { DataCacheStrategy, DataCacheFinalize, GetItemFunction } from '@themost/cache';
 
 export declare class DefaultDataCacheStrategy extends DataCacheStrategy implements DataCacheFinalize {
 

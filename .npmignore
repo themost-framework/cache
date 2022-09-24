@@ -9,10 +9,15 @@
 # test
 spec/
 jest.config.js
+jest.setup.js
 coverage/
+jsconfig.json
 
 # babel
 babel.config.js
+
+# rollup
+rollup.config.js
 
 # eslint
 .eslintrc
