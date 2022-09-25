@@ -1,5 +1,6 @@
 import {  ConfigurationBase } from '@themost/common';
-import { DataCacheStrategy, DefaultDataCacheStrategy } from '../src/index';
+import { DefaultDataCacheStrategy } from '@themost/cache/platform-server';
+import {DataCacheStrategy} from '@themost/cache';
 
 describe('DefaultDataCacheStrategy', () => {
     it('should try to create instance', async () => {

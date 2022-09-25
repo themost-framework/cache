@@ -1,5 +1,5 @@
 const NodeCache = require('node-cache');
-import { DataCacheStrategy } from './DataCacheStrategy';
+import { DataCacheStrategy } from '@themost/cache';
 import { LangUtils } from '@themost/common';
 
 const CACHE_ABSOLUTE_EXPIRATION = 1200;
@@ -59,6 +59,14 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
         this.rawCache.flushAll();
     }
 
+    /**
+     * @function
+     * @name NodeCache#_killCheckPeriod
+     */
+
+    /**
+     * @returns {Promise<void>}
+     */
     finalize() {
         return this.clear().then(() => {
             // destroy timer

@@ -57,15 +57,15 @@ class DataCacheStrategy extends ConfigurationStrategy {
 
     /**
      * Returns an item which is going to be added to cache
-     * @name GetItemFunction
      * @function
+     * @name GetItemFunction
      * @returns {Promise<any>}
     */
 
     /**
      * Gets data from cache or executes the given function and adds the result to cache
      * @param {string} key 
-     * @param {GetItemFunction} getFunc 
+     * @param {function():GetItemFunction} getFunc
      * @param {number=} absoluteExpiration 
      */
     async getOrDefault(key, getFunc, absoluteExpiration) {
