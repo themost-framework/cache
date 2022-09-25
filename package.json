@@ -1,6 +1,6 @@
 {
   "name": "@themost/cache",
-  "version": "2.7.0",
+  "version": "2.7.1",
   "description": "MOST web Framework Caching Module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
