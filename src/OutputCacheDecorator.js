@@ -5,7 +5,7 @@
  */
 
 /**
- * @interface OutputCacheAnnotation
+ * @interface OutputCacheConfiguration
  * @property {number=} duration Gets or sets the cache duration, in seconds
  * @property {boolean=} noStore Gets or sets a value that indicates whether to store the cache.
  * @property {string} location Gets or sets the location.
@@ -16,15 +16,19 @@
  */
 
 /**
- * @param {OutputCacheAnnotation} options
+ * @param {OutputCacheConfiguration} options
  * @returns {(function(*, string, *))}
  */
 function outputCache(options) {
-    return function(target, name, descriptor) {
-        if (descriptor.value !== 'function') {
-            throw new TypeError('Invalid descriptor. Expected class method');
+    return function(target) {
+        if ((target.descriptor != null && typeof target.descriptor.value === 'function') === false) {
+            throw new TypeError('Invalid descriptor. Expected class method.');
         }
-        Object.defineProperty(descriptor.value, 'outputCache', options);
+        Object.defineProperty(target.descriptor.value, 'outputCache', {
+            configurable: true,
+            enumerable: false,
+            value: options
+        });
     }
 }
 

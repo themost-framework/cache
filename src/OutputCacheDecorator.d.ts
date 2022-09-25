@@ -1,5 +1,5 @@
 
-export declare interface OutputCacheAnnotation {
+export declare interface OutputCacheConfiguration {
     duration?: number;
     location?: 'any' | 'server' | 'client' | 'serverAndClient' | 'none';
     noStore?: boolean;
@@ -9,4 +9,8 @@ export declare interface OutputCacheAnnotation {
     varyByCallback?: (context: any) => Promise<string>;
 }
 
-export declare function outputCache(options: OutputCacheAnnotation): (target: any, name: string, descriptor: PropertyDescriptor) => any;
+export declare interface OutputCacheAnnotation {
+    outputCache?: OutputCacheConfiguration
+}
+
+export declare function outputCache(options: OutputCacheConfiguration): (target: any, name: string, descriptor: PropertyDescriptor) => any;
