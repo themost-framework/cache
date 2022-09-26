@@ -6,6 +6,7 @@
 
 /**
  * @interface OutputCacheConfiguration
+ * @property {string=} path Gets or sets the cache pathname
  * @property {number=} duration Gets or sets the cache duration, in seconds
  * @property {boolean=} noStore Gets or sets a value that indicates whether to store the cache.
  * @property {string} location Gets or sets the location.

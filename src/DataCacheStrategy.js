@@ -1,5 +1,9 @@
 import {ConfigurationStrategy, AbstractMethodError, AbstractClassError} from '@themost/common';
 
+/**
+ * @interface CompositeCacheKey
+ */
+
 class DataCacheStrategy extends ConfigurationStrategy {
     constructor(configuration) {
         super(configuration);
@@ -11,7 +15,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
     /**
      * Sets a key value pair in cache.
      * @abstract
-     * @param {string} key - A string that represents the key of the cached value
+     * @param {string|CompositeCacheKey} key - A string that represents the key of the cached value
      * @param {*} value - The value to be cached
      * @param {number=} absoluteExpiration - An absolute expiration time in seconds. This parameter is optional.
      * @returns {Promise<void>}
@@ -25,7 +29,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
     /**
      * Removes a cached value.
      * @abstract
-     * @param {string} key - A string that represents the key of the cached value to be removed
+     * @param {string|CompositeCacheKey} key - A string that represents the key of the cached value to be removed
      * @returns {Promise<any>}
      */
     // eslint-disable-next-line no-unused-vars
@@ -47,7 +51,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
     /**
      * 
      * Gets a cached value defined by the given key.
-     * @param {string} key
+     * @param {string|CompositeCacheKey} key
      * @returns {Promise<any>}
      */
     // eslint-disable-next-line no-unused-vars
@@ -64,7 +68,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
 
     /**
      * Gets data from cache or executes the given function and adds the result to cache
-     * @param {string} key 
+     * @param {string|CompositeCacheKey} key 
      * @param {function():GetItemFunction} getFunc
      * @param {number=} absoluteExpiration 
      */
