@@ -1,10 +1,8 @@
 import { DataCacheStrategy } from '@themost/cache';
-// eslint-disable-next-line no-unused-vars
-import { ConfigurationBase } from '@themost/common';
 
 class DiskCacheStrategy extends DataCacheStrategy {
     /**
-     * @param {ConfigurationBase}
+     * @param {import('@themost/common').ConfigurationBase}
      */
     constructor(configuration) {
         super(configuration);
@@ -27,6 +25,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
     finalize() {
         //
     }
+
 
 }
 
