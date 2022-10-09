@@ -1,17 +1,17 @@
 import { DataObject } from '@themost/data';
-import { Args, Guid } from '@themost/common';
-import { Id, Entity, Column, Formula, ColumnDefault, Table } from '@themost/jspa';
+import { Args, Guid, TraceUtils } from '@themost/common';
+import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove } from '@themost/jspa';
 // eslint-disable-next-line no-unused-vars
-import {stats, readFile, writeFile, Stats, unlink} from 'fs';
+import {readFile, writeFile, unlink, stat} from 'fs';
 import mkdirp from 'mkdirp';
 import path from 'path';
-import util from 'util';
+import {promisify} from 'util';
 import * as moment from 'moment';
 
-const readFileAsync = util.promisify(readFile);
-const statsAsync = util.promisify(stats);
-const writeFileAsync = util.promisify(writeFile);
-const unlinkAsync = util.promisify(unlink);
+const readFileAsync = promisify(readFile);
+const statAsync = promisify(stat);
+const writeFileAsync = promisify(writeFile);
+const unlinkAsync = promisify(unlink);
 
 
 @Entity()
@@ -133,7 +133,7 @@ class DiskCacheEntry extends DataObject {
         /**
          * @type {Stats}
          */
-        const stats = await statsAsync(path.resolve(finalRootDir, fileDir, fileName));
+        const stats = await statAsync(path.resolve(finalRootDir, fileDir, fileName));
         // validate
         Args.check(stats.isFile, 'Entry cannot be found or is inaccessible');
         // and return
@@ -157,7 +157,7 @@ class DiskCacheEntry extends DataObject {
             /**
              * @type {Stats}
              */
-            const stats = await statsAsync(path.resolve(finalRootDir, fileDir, fileName));
+            const stats = await statAsync(path.resolve(finalRootDir, fileDir, fileName));
             // validate
             Args.check(stats.isFile, 'Entry cannot be found or is inaccessible');
             // and return
@@ -189,6 +189,22 @@ class DiskCacheEntry extends DataObject {
         const filePath = path.resolve(finalFileDir, fileName);
         // and write file
         return await writeFileAsync(filePath, content);
+    }
+
+    @PostRemove()
+    static async onPostRemove(event) {
+        try {
+            const model = event.model;
+            /**
+             * @type {DiskCacheEntry}
+             */
+            const target = model.convert(event.target);
+            // unlink file
+            await target.unlink();
+        } catch (err) {
+            TraceUtils.warn('Disk cache entry content cannot be released because of an error occurred while unlinking file.');
+            TraceUtils.warn(err);
+        }
     }
 
 }

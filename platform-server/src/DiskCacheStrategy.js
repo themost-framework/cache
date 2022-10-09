@@ -3,21 +3,6 @@ import { TraceUtils, LangUtils } from '@themost/common';
 import { DiskCache } from './DiskCache';
 import { DiskCacheEntry } from './models';
 
-async function unlinkAfterRemove(event) {
-    try {
-        const model = event.model;
-        /**
-         * @type {DiskCacheEntry}
-         */
-        const target = model.convert(event.target);
-        // unlink file
-        await target.unlink();
-    } catch (err) {
-        TraceUtils.warn('Disk cache entry content cannot be released because of an error occurred while unlinking file.');
-        TraceUtils.warn(err);
-    }
-}
-
 class DiskCacheStrategy extends DataCacheStrategy {
 
     /**
@@ -48,7 +33,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
             checkPeriod = 60;
         }
         // get default expiration from configuration
-        const expiration = LangUtils.parseInt(this.configuration.getSourceAt('settings/cache/absoluteExpiration'));
+        const expiration = LangUtils.parseInt(configuration.getSourceAt('settings/cache/absoluteExpiration'));
         if (expiration > 0) {
             this.absoluteExpiration = expiration;
         }
@@ -69,7 +54,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
                         .select('id').silent().getItems();
                     if (items.length) {
                         for (const item of items) {
-                            await context.model(DiskCacheEntry).subscribeOnce('after.remove', unlinkAfterRemove).remove(item);
+                            await context.model(DiskCacheEntry).remove(item);
                         }
                     }
                 } finally {
@@ -197,7 +182,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
              if (item == null) {
                 return;
              }
-             await context.model(DiskCacheEntry).silent().subscribeOnce('after.remove', unlinkAfterRemove).remove(item); 
+             await context.model(DiskCacheEntry).silent().remove(item); 
          } finally {
              if (context) {
                  await context.finalizeAsync();

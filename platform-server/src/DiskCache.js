@@ -1,6 +1,7 @@
 // eslint-disable-next-line no-unused-vars
 import { ConfigurationBase } from '@themost/common';
 import { DataApplication, SchemaLoaderStrategy, DefaultSchemaLoaderStrategy, DataConfigurationStrategy, ModuleLoaderStrategy, DefaultDataContext } from '@themost/data';
+import { DataCacheStrategy, NoCacheStrategy } from '@themost/cache';
 import path from 'path';
 
 class DiskCacheContext extends DefaultDataContext {
@@ -11,7 +12,7 @@ class DiskCacheContext extends DefaultDataContext {
 
 class DiskCache extends DataApplication {
 
-    static get defaultRootDir() {
+    static get DefaultRootDir() {
         return './cache/diskCache';
     }
 
@@ -19,7 +20,7 @@ class DiskCache extends DataApplication {
      * @param {ConfigurationBase=} containerConfiguration 
      */
     constructor(containerConfiguration) {
-        super();
+        super(DiskCache.DefaultRootDir);
         // set jspa imports
         this.configuration.setSourceAt('settings/jspa/imports', [
             path.resolve(__dirname, './models/index')
@@ -38,10 +39,7 @@ class DiskCache extends DataApplication {
                 type: '@themost/sqlite'
             }
         ]);
-        let rootDir = this.defaultRootDir;
-        if (containerConfiguration != null) {
-            rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || this.defaultRootDir;
-        }
+        const rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || DiskCache.DefaultRootDir;
         this.configuration.setSourceAt('adapters', [
             {
                 name: 'cache',
@@ -60,6 +58,8 @@ class DiskCache extends DataApplication {
         this.configuration.useStrategy(ModuleLoaderStrategy, function NodeModuleLoader() {
             this.require = (id) => require(id)
         });
+        // disable internal cache
+        this.configuration.useStrategy(DataCacheStrategy, NoCacheStrategy);
     }
 
     createContext() {
