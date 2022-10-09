@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "experimentalDecorators": true,
     "paths": {
       "@themost/cache": [
         "src/index"
