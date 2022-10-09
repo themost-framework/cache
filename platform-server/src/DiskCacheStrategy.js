@@ -83,6 +83,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
          */
         let context;
         try {
+            context = this.rawCache.createContext();
             let entry;
             const duration = absoluteExpiration ? absoluteExpiration : this.absoluteExpiration;
             if (typeof key === 'string') {
@@ -122,6 +123,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
          */
          let context;
          try {
+            context = this.rawCache.createContext();
              let entry;
              if (typeof key === 'string') {
                  entry = {
@@ -162,6 +164,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
          */
          let context;
          try {
+             context = this.rawCache.createContext();
              let entry;
              if (typeof key === 'string') {
                  entry = {

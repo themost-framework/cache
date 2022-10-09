@@ -1,6 +1,6 @@
 import { DataObject } from '@themost/data';
 import { Args, Guid, TraceUtils } from '@themost/common';
-import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove } from '@themost/jspa';
+import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove, EntityListeners } from '@themost/jspa';
 // eslint-disable-next-line no-unused-vars
 import {readFile, writeFile, unlink, stat} from 'fs';
 import mkdirp from 'mkdirp';
@@ -13,8 +13,26 @@ const statAsync = promisify(stat);
 const writeFileAsync = promisify(writeFile);
 const unlinkAsync = promisify(unlink);
 
+class OnRemoveDiskCacheEntry {
+    @PostRemove()
+    async onPostRemove(event) {
+        try {
+            const model = event.model;
+            /**
+             * @type {DiskCacheEntry}
+             */
+            const target = model.convert(event.target);
+            // unlink file
+            await target.unlink();
+        } catch (err) {
+            TraceUtils.warn('Disk cache entry content cannot be released because of an error occurred while unlinking file.');
+            TraceUtils.warn(err);
+        }
+    }
+}
 
 @Entity()
+@EntityListeners(OnRemoveDiskCacheEntry)
 @Table({
     uniqueConstraints: {
         columnNames: [
@@ -191,24 +209,9 @@ class DiskCacheEntry extends DataObject {
         return await writeFileAsync(filePath, content);
     }
 
-    @PostRemove()
-    static async onPostRemove(event) {
-        try {
-            const model = event.model;
-            /**
-             * @type {DiskCacheEntry}
-             */
-            const target = model.convert(event.target);
-            // unlink file
-            await target.unlink();
-        } catch (err) {
-            TraceUtils.warn('Disk cache entry content cannot be released because of an error occurred while unlinking file.');
-            TraceUtils.warn(err);
-        }
-    }
-
 }
 
 export {
+    OnRemoveDiskCacheEntry,
     DiskCacheEntry
 }

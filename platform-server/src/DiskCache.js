@@ -1,6 +1,6 @@
 // eslint-disable-next-line no-unused-vars
-import { ConfigurationBase } from '@themost/common';
-import { DataApplication, SchemaLoaderStrategy, DefaultSchemaLoaderStrategy, DataConfigurationStrategy, ModuleLoaderStrategy, DefaultDataContext } from '@themost/data';
+import { ConfigurationBase, ModuleLoaderStrategy } from '@themost/common';
+import { DataApplication, SchemaLoaderStrategy, DefaultSchemaLoaderStrategy, DataConfigurationStrategy, DefaultDataContext } from '@themost/data';
 import { DataCacheStrategy, NoCacheStrategy } from '@themost/cache';
 import path from 'path';
 
