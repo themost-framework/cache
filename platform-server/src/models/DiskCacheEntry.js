@@ -6,7 +6,7 @@ import {readFile, writeFile, unlink, stat} from 'fs';
 import mkdirp from 'mkdirp';
 import path from 'path';
 import {promisify} from 'util';
-import * as moment from 'moment';
+const moment = require('moment');
 
 const readFileAsync = promisify(readFile);
 const statAsync = promisify(stat);

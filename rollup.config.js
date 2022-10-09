@@ -48,8 +48,10 @@ export default [
             [ '@themost/cache' ]
         ),
         plugins: [
-            commonjs(),
-            babel({ babelHelpers: 'bundled' })
+            babel({
+                babelHelpers: 'bundled'
+            }),
+            commonjs()
         ]
     },
     {
@@ -62,7 +64,9 @@ export default [
         external: Object.keys(pkg.dependencies).concat(Object.keys(pkg.peerDependencies)).concat(
             [ '@themost/cache' ]
         ),
-        plugins: [babel({ babelHelpers: 'bundled' })]
+        plugins: [babel({
+            babelHelpers: 'bundled'
+        })]
     },
     {
         input: 'platform-server/src/index.d.ts',

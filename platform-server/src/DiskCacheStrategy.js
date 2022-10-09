@@ -1,7 +1,7 @@
 import { DataCacheStrategy } from '@themost/cache';
 import { TraceUtils, LangUtils } from '@themost/common';
 import { DiskCache } from './DiskCache';
-import { DiskCacheEntry } from './models';
+import { DiskCacheEntry } from './models/DiskCacheEntry';
 
 class DiskCacheStrategy extends DataCacheStrategy {
 

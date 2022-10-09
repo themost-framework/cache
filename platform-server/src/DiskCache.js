@@ -1,5 +1,5 @@
 // eslint-disable-next-line no-unused-vars
-import { ConfigurationBase, ModuleLoaderStrategy } from '@themost/common';
+import { ModuleLoaderStrategy } from '@themost/common';
 import { DataApplication, SchemaLoaderStrategy, DefaultSchemaLoaderStrategy, DataConfigurationStrategy, DefaultDataContext } from '@themost/data';
 import { DataCacheStrategy, NoCacheStrategy } from '@themost/cache';
 import path from 'path';
@@ -18,7 +18,7 @@ class DiskCache extends DataApplication {
     }
 
     /**
-     * @param {ConfigurationBase=} containerConfiguration 
+     * @param {import('@themost/common').ConfigurationBase=} containerConfiguration 
      */
     constructor(containerConfiguration) {
         super(DiskCache.DefaultRootDir);
