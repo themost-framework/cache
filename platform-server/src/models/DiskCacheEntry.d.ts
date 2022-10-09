@@ -9,6 +9,7 @@ export declare class DiskCacheEntry extends DataObject {
     customParams?: string;
     duration?: number;
     createdAt?: Date;
+    expiredAt?: Date;
     modifiedAt?: Date;
     read(): Promise<Buffer>;
     write(content: string | ArrayBufferView): Promise<void>;

@@ -57,6 +57,7 @@
   "dependencies": {
     "@themost/jspa": "^1.0.1",
     "mkdirp": "^1.0.4",
+    "moment": "^2.29.4",
     "node-cache": "^5.1.2"
   }
 }
