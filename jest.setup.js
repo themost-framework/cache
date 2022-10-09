@@ -1,3 +1,4 @@
+require('source-map-support/register');
 global.console = {
     ...console,
     // uncomment to ignore a specific log level

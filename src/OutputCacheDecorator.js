@@ -21,11 +21,11 @@
  * @returns {(function(*, string, *))}
  */
 function outputCache(options) {
-    return function(target) {
-        if ((target.descriptor != null && typeof target.descriptor.value === 'function') === false) {
+    return function(target, propertyKey, descriptor) {
+        if ((descriptor != null && typeof descriptor.value === 'function') === false) {
             throw new TypeError('Invalid descriptor. Expected class method.');
         }
-        Object.defineProperty(target.descriptor.value, 'outputCache', {
+        Object.defineProperty(descriptor.value, 'outputCache', {
             configurable: true,
             enumerable: false,
             value: options

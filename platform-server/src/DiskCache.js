@@ -3,6 +3,7 @@ import { ConfigurationBase, ModuleLoaderStrategy } from '@themost/common';
 import { DataApplication, SchemaLoaderStrategy, DefaultSchemaLoaderStrategy, DataConfigurationStrategy, DefaultDataContext } from '@themost/data';
 import { DataCacheStrategy, NoCacheStrategy } from '@themost/cache';
 import path from 'path';
+import mkdirp from 'mkdirp';
 
 class DiskCacheContext extends DefaultDataContext {
     constructor() {
@@ -13,7 +14,7 @@ class DiskCacheContext extends DefaultDataContext {
 class DiskCache extends DataApplication {
 
     static get DefaultRootDir() {
-        return './cache/diskCache';
+        return '.cache/diskCache';
     }
 
     /**
@@ -40,13 +41,17 @@ class DiskCache extends DataApplication {
             }
         ]);
         const rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || DiskCache.DefaultRootDir;
+        const finalRootDir = path.resolve(process.cwd(), rootDir);
+        mkdirp(finalRootDir).then(() => {
+            //
+        });
         this.configuration.setSourceAt('adapters', [
             {
                 name: 'cache',
                 default: true,
                 invariantName: 'sqlite',
                 options: {
-                    database: path.resolve(process.cwd(), rootDir, 'index')
+                    database: path.resolve(finalRootDir, 'index.db')
                 }
             }
         ]);
@@ -58,6 +63,12 @@ class DiskCache extends DataApplication {
         this.configuration.useStrategy(ModuleLoaderStrategy, function NodeModuleLoader() {
             this.require = (id) => require(id)
         });
+        const cacheStrategy = this.configuration.getStrategy(DataCacheStrategy);
+        if (cacheStrategy && typeof cacheStrategy.finalize === 'function') {
+            cacheStrategy.finalize().then(() => {
+                // do nothing
+            });
+        }
         // disable internal cache
         this.configuration.useStrategy(DataCacheStrategy, NoCacheStrategy);
     }

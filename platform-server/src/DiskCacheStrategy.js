@@ -199,8 +199,8 @@ class DiskCacheStrategy extends DataCacheStrategy {
     }
 
     finalize() {
-        if (this.checkPeriod) {
-            clearInterval(this.checkingPeriod);
+        if (this.killCheckPeriod) {
+            clearInterval(this.killCheckPeriod);
         }
     }
 
