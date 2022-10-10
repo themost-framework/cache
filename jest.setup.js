@@ -1,4 +1,5 @@
-require('source-map-support/register');
+// eslint-disable-next-line no-undef
+jest.setTimeout(30000);
 global.console = {
     ...console,
     // uncomment to ignore a specific log level

@@ -3,9 +3,9 @@ import { Args, Guid, TraceUtils } from '@themost/common';
 import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove, EntityListeners } from '@themost/jspa';
 // eslint-disable-next-line no-unused-vars
 import {readFile, writeFile, unlink, stat} from 'fs';
-import mkdirp from 'mkdirp';
 import path from 'path';
 import {promisify} from 'util';
+import mkdirp from 'mkdirp';
 const moment = require('moment');
 
 const readFileAsync = promisify(readFile);
@@ -136,7 +136,7 @@ class DiskCacheEntry extends DataObject {
      * @returns Promise<Buffer>
      */
     async read() {
-        Args.check(typeof this.id === 'number', 'Entry identifier must be a valid number at this context');
+        Args.check(Guid.isGuid(this.id), 'Entry identifier must be a valid uuid at this context');
         const fileName = this.id; // e.g. 929a9730-478e-11ed-b878-0242ac120002
         const fileDir = fileName.substring(0, 1); // e.g. 9
         let rootDir = this.context.getConfiguration().getSourceAt('settings/cache/rootDir');
@@ -144,8 +144,6 @@ class DiskCacheEntry extends DataObject {
             rootDir = '.cache/diskCache'
         }
         const finalRootDir = path.resolve(process.cwd(), rootDir);
-        // ensure cache root dir
-        await mkdirp(finalRootDir);
         // get file path
         const filePath = path.resolve(finalRootDir, fileDir, fileName);
         /**
@@ -153,7 +151,7 @@ class DiskCacheEntry extends DataObject {
          */
         const stats = await statAsync(path.resolve(finalRootDir, fileDir, fileName));
         // validate
-        Args.check(stats.isFile, 'Entry cannot be found or is inaccessible');
+        Args.check(stats.isFile(), 'Entry cannot be found or is inaccessible');
         // and return
         return await readFileAsync(filePath);
     }
@@ -167,8 +165,6 @@ class DiskCacheEntry extends DataObject {
             rootDir = '.cache/diskCache'
         }
         const finalRootDir = path.resolve(process.cwd(), rootDir);
-        // ensure cache root dir
-        await mkdirp(finalRootDir);
         // get file path
         const filePath = path.resolve(finalRootDir, fileDir, fileName);
         try {
@@ -177,7 +173,7 @@ class DiskCacheEntry extends DataObject {
              */
             const stats = await statAsync(path.resolve(finalRootDir, fileDir, fileName));
             // validate
-            Args.check(stats.isFile, 'Entry cannot be found or is inaccessible');
+            Args.check(stats.isFile(), 'Entry cannot be found or is inaccessible');
             // and return
             return await unlinkAsync(filePath);
         } catch (err) {
@@ -193,7 +189,7 @@ class DiskCacheEntry extends DataObject {
      * @returns Promise<string>
      */
     async write(content) {
-        Args.check(typeof this.id === 'number', 'Entry identifier must be a valid number at this context');
+        Args.check(Guid.isGuid(this.id), 'Entry identifier must be a valid uuid at this context');
         const fileName = this.id; // e.g. 929a9730-478e-11ed-b878-0242ac120002
         const fileDir = fileName.substring(0, 1); // e.g. 9
         let rootDir = this.context.getConfiguration().getSourceAt('settings/cache/rootDir');
@@ -201,12 +197,12 @@ class DiskCacheEntry extends DataObject {
             rootDir = '.cache/diskCache'
         }
         const finalFileDir = path.resolve(process.cwd(), rootDir, fileDir);
-        // ensure cache root dir
+        // ensure that directory exists
         await mkdirp(finalFileDir);
         // get file path
         const filePath = path.resolve(finalFileDir, fileName);
         // and write file
-        return await writeFileAsync(filePath, content);
+        await writeFileAsync(filePath, content);
     }
 
 }

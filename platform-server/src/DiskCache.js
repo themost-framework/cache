@@ -42,9 +42,7 @@ class DiskCache extends DataApplication {
         ]);
         const rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || DiskCache.DefaultRootDir;
         const finalRootDir = path.resolve(process.cwd(), rootDir);
-        mkdirp(finalRootDir).then(() => {
-            //
-        });
+        mkdirp.sync(finalRootDir);
         this.configuration.setSourceAt('adapters', [
             {
                 name: 'cache',

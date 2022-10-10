@@ -27,4 +27,35 @@ describe('DataCacheStrategy', () => {
         const item = await service.get('/api/Users/?$filter=enabled eq true');
         expect(item).toBeFalsy();
     });
+
+    it('should try to set item', async () => {
+        expect(service).toBeTruthy();
+        await service.add('/api/Users/?$filter=enabled eq true', JSON.stringify([
+            {
+                name: 'user1'
+            },
+            {
+                name: 'user2'
+            }
+        ]));
+        const item = await service.get('/api/Users/?$filter=enabled eq true');
+        expect(item).toBeTruthy();
+    });
+
+    it('should try to remove item', async () => {
+        expect(service).toBeTruthy();
+        await service.add('/api/Users/', JSON.stringify([
+            {
+                name: 'user1'
+            },
+            {
+                name: 'user2'
+            }
+        ]));
+        let item = await service.get('/api/Users/');
+        expect(item).toBeTruthy();
+        await service.remove('/api/Users/');
+        item = await service.get('/api/Users/');
+        expect(item).toBeFalsy();
+    });
 });

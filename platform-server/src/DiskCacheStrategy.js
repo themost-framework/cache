@@ -97,7 +97,10 @@ class DiskCacheStrategy extends DataCacheStrategy {
                     duration
                 });
             }
-            context.model(DiskCacheEntry).subscribeOnce(async (event) => {
+            await context.model(DiskCacheEntry).subscribeOnce('after.save', async (event) => {
+                if (event.state !== 1) {
+                    return;
+                }
                 /**
                  * @type {DiskCacheEntry}
                  */
@@ -140,7 +143,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
               * get entry
               * @type {DiskCacheEntry}
               */
-             const item = await context.model(DiskCacheEntry).silent().find(entry).getItem();
+             const item = await context.model(DiskCacheEntry).silent().find(entry).getTypedItem();
              if (item == null) {
                 return null;
              }
