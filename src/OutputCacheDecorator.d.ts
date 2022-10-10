@@ -1,5 +1,6 @@
 
 export declare interface OutputCacheConfiguration {
+    path?: string;
     duration?: number;
     location?: 'any' | 'server' | 'client' | 'serverAndClient' | 'none';
     noStore?: boolean;

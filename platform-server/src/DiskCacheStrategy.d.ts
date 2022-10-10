@@ -1,9 +1,11 @@
 import { DataCacheStrategy, DataCacheFinalize, GetItemFunction, CompositeCacheKey } from '@themost/cache';
 import {ConfigurationBase} from "@themost/common";
+import { DiskCache } from './DiskCache';
 
-export declare class DefaultDataCacheStrategy extends DataCacheStrategy implements DataCacheFinalize {
+export declare class DiskCacheStrategy extends DataCacheStrategy implements DataCacheFinalize {
 
     constructor(configuration: ConfigurationBase);
+    rawCache: DiskCache;
     absoluteExpiration: number;
     add(key: string | CompositeCacheKey, value: any, absoluteExpiration?: number): Promise<any>;
     remove(key: string | CompositeCacheKey): Promise<any>;

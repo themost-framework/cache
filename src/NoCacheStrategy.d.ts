@@ -1,7 +1,7 @@
-import { DataCacheStrategy, DataCacheFinalize, GetItemFunction, CompositeCacheKey } from '@themost/cache';
-import {ConfigurationBase} from "@themost/common";
+import { ConfigurationBase, ConfigurationStrategy } from '@themost/common';
+import { CompositeCacheKey, DataCacheStrategyBase, GetItemFunction } from './DataCacheStrategy';
 
-export declare class DefaultDataCacheStrategy extends DataCacheStrategy implements DataCacheFinalize {
+export declare class NoCacheStrategy extends ConfigurationStrategy implements DataCacheStrategyBase {
 
     constructor(configuration: ConfigurationBase);
     absoluteExpiration: number;
@@ -11,5 +11,5 @@ export declare class DefaultDataCacheStrategy extends DataCacheStrategy implemen
     get(key: string | CompositeCacheKey): Promise<any>;
     getOrDefault(key: string | CompositeCacheKey, getFunc: GetItemFunction, absoluteExpiration?: number): Promise<any>;
     finalize(): Promise<void>;
-
+    
 }
