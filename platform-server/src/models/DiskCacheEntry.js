@@ -31,7 +31,9 @@ class OnRemoveDiskCacheEntry {
     }
 }
 
-@Entity()
+@Entity({
+    version: '1.0.1'
+})
 @EntityListeners(OnRemoveDiskCacheEntry)
 @Table({
     uniqueConstraints: {
@@ -71,6 +73,14 @@ class DiskCacheEntry extends DataObject {
         type: 'Text'
     })
     headers;
+
+    /**
+     * @type {boolean}
+     */
+     @Column({
+        type: 'Boolean'
+    })
+    doomed;
 
     /**
      * @type {string}
@@ -157,7 +167,7 @@ class DiskCacheEntry extends DataObject {
     }
 
     async unlink() {
-        Args.check(typeof this.id === 'number', 'Entry identifier must be a valid number at this context');
+        Args.check(Guid.isGuid(this.id), 'Entry identifier must be a valid uuid at this context');
         const fileName = this.id; // e.g. 929a9730-478e-11ed-b878-0242ac120002
         const fileDir = fileName.substring(0, 1); // e.g. 9
         let rootDir = this.context.getConfiguration().getSourceAt('settings/cache/rootDir');

@@ -30,7 +30,8 @@ describe('DataCacheStrategy', () => {
 
     it('should try to set item', async () => {
         expect(service).toBeTruthy();
-        await service.add('/api/Users/?$filter=enabled eq true', JSON.stringify([
+        const key = '/api/Users/?$filter=enabled eq true';
+        await service.add(key, JSON.stringify([
             {
                 name: 'user1'
             },
@@ -38,13 +39,15 @@ describe('DataCacheStrategy', () => {
                 name: 'user2'
             }
         ]));
-        const item = await service.get('/api/Users/?$filter=enabled eq true');
+        const item = await service.get(key);
         expect(item).toBeTruthy();
+        await service.remove(key);
     });
 
     it('should try to remove item', async () => {
         expect(service).toBeTruthy();
-        await service.add('/api/Users/', JSON.stringify([
+        const key = '/api/Users/';
+        await service.add(key, JSON.stringify([
             {
                 name: 'user1'
             },
@@ -52,10 +55,10 @@ describe('DataCacheStrategy', () => {
                 name: 'user2'
             }
         ]));
-        let item = await service.get('/api/Users/');
+        let item = await service.get(key);
         expect(item).toBeTruthy();
-        await service.remove('/api/Users/');
-        item = await service.get('/api/Users/');
+        await service.remove(key);
+        item = await service.get(key);
         expect(item).toBeFalsy();
     });
 });
