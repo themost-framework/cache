@@ -10,13 +10,13 @@ Important note: This module has been separated from [@themost/data](https://gith
 
 ## Configuration
 
-`@themost/cache#DefaultDataCachingStrategy` is being registered by `@themost/data#DataConfiguration`:
+`@themost/cache/platform-server#DefaultDataCachingStrategy` is being registered by `@themost/data#DataConfiguration`:
 
     {
         "services": [
             {
                 "serviceType": "@themost/cache#DataCacheStrategy",
-                "strategyType": "@themost/cache#DefaultDataCacheStrategy"
+                "strategyType": "@themost/cache/platform-server#DefaultDataCacheStrategy"
             }
         ]
     }
