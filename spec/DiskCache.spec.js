@@ -32,14 +32,14 @@ describe('DataCacheStrategy', () => {
     it('should try to set item', async () => {
         expect(service).toBeTruthy();
         const key = '/api/Users/?$filter=enabled eq true';
-        await service.add(key, JSON.stringify([
+        await service.add(key, [
             {
                 name: 'user1'
             },
             {
                 name: 'user2'
             }
-        ]));
+        ]);
         const item = await service.get(key);
         expect(item).toBeTruthy();
         await service.remove(key);
@@ -48,14 +48,14 @@ describe('DataCacheStrategy', () => {
     it('should try to remove item', async () => {
         expect(service).toBeTruthy();
         const key = '/api/Users/';
-        await service.add(key, JSON.stringify([
+        await service.add(key, [
             {
                 name: 'user1'
             },
             {
                 name: 'user2'
             }
-        ]));
+        ]);
         let item = await service.get(key);
         expect(item).toBeTruthy();
         await service.remove(key);
@@ -65,9 +65,9 @@ describe('DataCacheStrategy', () => {
 
     it('should check items', async () => {
         for (let index = 0; index < 10; index++) {
-            await service.add(`/api/Users/${index}`, JSON.stringify({
+            await service.add(`/api/Users/${index}`, {
                 name: `user${index}`
-            }), 30 * 60);
+            }, 30 * 60);
         }
         const context = service.rawCache.createContext();
         const cached = await context.model(DiskCacheEntry).where('path').equal('/api/Users/4').getItem();

@@ -64,6 +64,7 @@ class DiskCacheEntry extends DataObject {
      * @type {string}
      */
     @Column({
+        length: 1024,
         type: 'Text'
     })
     path;
@@ -72,6 +73,7 @@ class DiskCacheEntry extends DataObject {
      * @type {string}
      */
     @Column({
+        length: 1024,
         type: 'Text'
     })
     headers;
@@ -97,6 +99,7 @@ class DiskCacheEntry extends DataObject {
      * @type {string}
      */
     @Column({
+        length: 1024,
         type: 'Text'
     })
     params;
@@ -105,6 +108,7 @@ class DiskCacheEntry extends DataObject {
      * @type {string}
      */
     @Column({
+        length: 1024,
         type: 'Text'
     })
     customParams;

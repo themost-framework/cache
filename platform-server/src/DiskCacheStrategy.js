@@ -68,7 +68,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
                      }
                  ).where('expiredAt').lowerOrEqual(new Date())
              );
-             const items = await context.model(DiskCacheEntry).where('doomed').equal(true).select('id').silent().getItems();
+             const items = await context.model(DiskCacheEntry).where('doomed').equal(true).select('id').getItems();
              if (items.length) {
                  for (const item of items) {
                      await context.model(DiskCacheEntry).remove(item);
@@ -103,10 +103,14 @@ class DiskCacheStrategy extends DataCacheStrategy {
                     duration
                 }
             } else {
-                entry = Object.assign({}, key, {
+                entry = Object.assign({
                     duration
-                });
+                }, key);
             }
+
+            // set default content encoding
+            const contentEncoding = (value instanceof ArrayBuffer) ? 'application/octet-stream': 'application/json';
+            entry.contentEncoding = entry.contentEncoding || contentEncoding;
             await context.model(DiskCacheEntry).subscribeOnce('after.save', async (event) => {
                 if (event.state !== 1) {
                     return;
@@ -116,8 +120,12 @@ class DiskCacheStrategy extends DataCacheStrategy {
                  */
                 const target = event.model.convert(event.target);
                 // write content
-                await target.write(value);
-            }).silent().save(entry);
+                if (value instanceof ArrayBuffer) {
+                    await target.write(value);
+                } else {
+                    await target.write(JSON.stringify(value));
+                }
+            }).save(entry);
 
         } finally {
             if (context) {
@@ -144,7 +152,6 @@ class DiskCacheStrategy extends DataCacheStrategy {
                      headers: null,
                      params: null,
                      customParams: null,
-                     contentEncoding: null,
                      doomed: false
                  }
              } else {
@@ -156,12 +163,16 @@ class DiskCacheStrategy extends DataCacheStrategy {
               * get entry
               * @type {DiskCacheEntry}
               */
-             const item = await context.model(DiskCacheEntry).silent().find(entry).getTypedItem();
+             const item = await context.model(DiskCacheEntry).find(entry).getTypedItem();
              if (item == null) {
                 return null;
              }
              // get file content
-             return await item.read();
+             const buffer = await item.read();
+             if (item.contentEncoding === 'application/json') {
+                return JSON.parse(buffer);
+             }
+             return buffer;
  
          } finally {
              if (context) {
@@ -187,8 +198,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
                      path: key,
                      headers: null,
                      params: null,
-                     customParams: null,
-                     contentEncoding: null
+                     customParams: null
                  }
              } else {
                  entry = Object.assign({}, key);
@@ -197,11 +207,11 @@ class DiskCacheStrategy extends DataCacheStrategy {
               * get entry
               * @type {DiskCacheEntry}
               */
-             const item = await context.model(DiskCacheEntry).silent().find(entry).getItem();
+             const item = await context.model(DiskCacheEntry).find(entry).getItem();
              if (item == null) {
                 return;
              }
-             await context.model(DiskCacheEntry).silent().remove(item); 
+             await context.model(DiskCacheEntry).remove(item); 
          } finally {
              if (context) {
                  await context.finalizeAsync();
