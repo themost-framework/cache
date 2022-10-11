@@ -3,7 +3,7 @@ MOST Web Framework Data Caching
 
 @themost/cache implements the default data caching strategy that is going to be used by any [@themost](https://github.com/themost-framework) data application
 
-Important note: This module has been separated from [@themost/data](https://github.com/themost-framework/data) even if it is the default caching strategy.
+Important note: This module has been separated from [@themost/data](https://github.com/themost-framework/data) even if it exports the default caching strategy.
 
 ## Installation 
     npm i @themost/cache
