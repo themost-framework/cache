@@ -6,6 +6,8 @@ import {readFile, writeFile, unlink, stat} from 'fs';
 import path from 'path';
 import {promisify} from 'util';
 import mkdirp from 'mkdirp';
+import { MD5 } from 'crypto-js';
+
 const moment = require('moment');
 
 const readFileAsync = promisify(readFile);
@@ -32,7 +34,7 @@ class OnRemoveDiskCacheEntry {
 }
 
 @Entity({
-    version: '1.0.1'
+    version: '1.1.1'
 })
 @EntityListeners(OnRemoveDiskCacheEntry)
 @Table({
@@ -141,6 +143,15 @@ class DiskCacheEntry extends DataObject {
      */
     @Formula(() => new Date())
     modifiedAt;
+
+    /**
+     * @type {string}
+     */
+     @Column({
+        type: 'Text'
+    })
+    @Formula((event) => `W/"${MD5(JSON.stringify(event.target)).toString()}"`)
+    entityTag;
 
     /**
      * Reads file from disk cache
