@@ -11,6 +11,7 @@ export declare class DiskCacheEntry extends DataObject {
     createdAt?: Date;
     expiredAt?: Date;
     modifiedAt?: Date;
+    entityTag?: Date;
     read(): Promise<Buffer>;
     write(content: string | ArrayBufferView): Promise<void>;
 }
