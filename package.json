@@ -1,6 +1,6 @@
 {
   "name": "@themost/cache",
-  "version": "2.7.2",
+  "version": "2.7.3",
   "description": "MOST web Framework Caching Module",
   "main": "dist/index.js",
   "module": "dist/index.esm.js",
@@ -44,6 +44,7 @@
     "@babel/preset-env": "^7.16.11",
     "@rollup/plugin-babel": "^5.3.1",
     "@rollup/plugin-commonjs": "^22.0.2",
+    "@rollup/plugin-node-resolve": "^15.0.0",
     "@themost/peers": "^1.0.2",
     "@types/jest": "^27.4.1",
     "@types/node-cache": "^4.2.5",
@@ -57,6 +58,7 @@
   },
   "dependencies": {
     "@themost/jspa": "^1.0.1",
+    "crypto-js": "^4.1.1",
     "mkdirp": "^1.0.4",
     "moment": "^2.29.4",
     "node-cache": "^5.1.2"
