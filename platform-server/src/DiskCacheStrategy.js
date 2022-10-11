@@ -1,5 +1,6 @@
 import { DataCacheStrategy } from '@themost/cache';
 import { TraceUtils, LangUtils } from '@themost/common';
+import { QueryExpression } from '@themost/query';
 import { DiskCache } from './DiskCache';
 import { DiskCacheEntry } from './models/DiskCacheEntry';
 
@@ -39,38 +40,47 @@ class DiskCacheStrategy extends DataCacheStrategy {
         }
         this.rawCache = new DiskCache(configuration);
         this.killCheckPeriod = setInterval(() => {
-            // validate cache and clear outdated items
             if (this.checkingPeriod) {
                 return;
             }
-            (async () => {
-                /**
-                 * @type {import('./DiskCache').DiskCacheContext}
-                 */
-                let context;
-                try {
-                    context = this.rawCache.createContext();
-                    const items = await context.model(DiskCacheEntry).where('expiredAt').lowerOrEqual(new Date())
-                        .select('id').silent().getItems();
-                    if (items.length) {
-                        for (const item of items) {
-                            await context.model(DiskCacheEntry).remove(item);
-                        }
-                    }
-                } finally {
-                    if (context) {
-                        await context.finalizeAsync();
-                    }
-                }
-            })().catch((err) => {
+            this.checkingPeriod = true;
+            this.onCheck().catch((err) => {
                 TraceUtils.error('An error occured while checking expiration of disk cache entries');
                 TraceUtils.error(err);
             }).finally(() => {
                 this.checkingPeriod = false;
             });
-            
         }, checkPeriod * 1000);
     }
+
+    async onCheck() {
+        /**
+         * @type {import('./DiskCache').DiskCacheContext}
+         */
+         let context;
+         try {
+             context = this.rawCache.createContext();
+             const model = context.model(DiskCacheEntry);
+             await context.db.executeAsync(
+                 new QueryExpression().update(model.sourceAdapter).set(
+                     {
+                         doomed: true
+                     }
+                 ).where('expiredAt').lowerOrEqual(new Date())
+             );
+             const items = await context.model(DiskCacheEntry).where('doomed').equal(true).select('id').silent().getItems();
+             if (items.length) {
+                 for (const item of items) {
+                     await context.model(DiskCacheEntry).remove(item);
+                 }
+             }
+         } finally {
+             if (context) {
+                 await context.finalizeAsync();
+             }
+         }
+    }
+
     /**
      * @param {string|*} key
      * @param {*} value
@@ -134,10 +144,13 @@ class DiskCacheStrategy extends DataCacheStrategy {
                      headers: null,
                      params: null,
                      customParams: null,
-                     contentEncoding: null
+                     contentEncoding: null,
+                     doomed: false
                  }
              } else {
-                 entry = Object.assign({}, key);
+                 entry = Object.assign({}, key, {
+                    doomed: false
+                 });
              }
              /**
               * get entry

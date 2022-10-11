@@ -1,5 +1,6 @@
 import { ConfigurationBase } from '@themost/common';
-import { DiskCacheStrategy, DiskCache } from '@themost/cache/platform-server';
+import { DiskCacheStrategy, DiskCache, DiskCacheEntry } from '@themost/cache/platform-server';
+import { QueryExpression } from '@themost/query';
 
 describe('DataCacheStrategy', () => {
 
@@ -60,5 +61,28 @@ describe('DataCacheStrategy', () => {
         await service.remove(key);
         item = await service.get(key);
         expect(item).toBeFalsy();
+    });
+
+    it('should check items', async () => {
+        for (let index = 0; index < 10; index++) {
+            await service.add(`/api/Users/${index}`, JSON.stringify({
+                name: `user${index}`
+            }), 30 * 60);
+        }
+        const context = service.rawCache.createContext();
+        const cached = await context.model(DiskCacheEntry).where('path').equal('/api/Users/4').getItem();
+        expect(cached).toBeTruthy();
+        await context.db.executeAsync(
+            new QueryExpression().update(context.model(DiskCacheEntry).sourceAdapter).set(
+                {
+                    expiredAt: new Date()
+                }
+            ).where('path').equal('/api/Users/4')
+        );
+        await service.onCheck();
+        const deleted = await context.model(DiskCacheEntry).where('path').equal('/api/Users/4').getItem();
+        expect(deleted).toBeFalsy();
+        await context.finalize();
+        
     });
 });

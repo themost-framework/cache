@@ -36,7 +36,7 @@ class OnRemoveDiskCacheEntry {
 })
 @EntityListeners(OnRemoveDiskCacheEntry)
 @Table({
-    uniqueConstraints: {
+    uniqueConstraints: [{
         columnNames: [
             'path',
             'contentEncoding',
@@ -44,7 +44,7 @@ class OnRemoveDiskCacheEntry {
             'params',
             'customParams'
         ]
-    }
+    }]
 })
 class DiskCacheEntry extends DataObject {
     /**
@@ -80,6 +80,7 @@ class DiskCacheEntry extends DataObject {
      @Column({
         type: 'Boolean'
     })
+    @ColumnDefault(() => false)
     doomed;
 
     /**
