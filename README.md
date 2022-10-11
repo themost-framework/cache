@@ -33,4 +33,38 @@ Configure absolute expiration timeout by setting `absoluteExpiration` under `set
 
 This setting is going to be used by [node-cache](https://github.com/node-cache/node-cache#initialize-init) which is the caching engine initiated by `@themost/cache#DefaultDataCacheStrategy` strategy.
 
+`@themost/cache/platform-server#DiskCacheStrategy` is an alternative caching strategy which uses disk for caching items.
+
+    {
+        "services": [
+            {
+                "serviceType": "@themost/cache#DataCacheStrategy",
+                "strategyType": "@themost/cache/platform-server#DiskCacheStrateg"
+            }
+        ]
+    }
+    
+Configure disk cache root under `settings/cache` section (the default value is `.cache/diskCache`):
+
+    {
+        "settings": {
+            "cache": {
+                "absoluteExpiration": 900,
+                "rootDir": ".cache/diskCache"
+            }
+        }
+    }
+
+and the interval -in seconds- of validating the expiration of cached items: 
+
+    {
+        "settings": {
+            "cache": {
+                "absoluteExpiration": 900,
+                "rootDir": ".cache/diskCache",
+                "checkingPeriod": 60
+            }
+        }
+    }
+
 Checkout other data caching strategies like [@themost/memcached](https://www.npmjs.com/package/@themost/memcached), [@themost/redis](https://www.npmjs.com/package/@themost/redis) etc.
