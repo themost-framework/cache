@@ -12,7 +12,7 @@
  * @property {string} location Gets or sets the location.
  * @property {Array<string>=} varyByHeader Gets or sets the vary-by-header values
  * @property {Array<string>=} varyByParam Gets or sets the vary-by-param values
- * @property {Array<string>=} varyByContentEncoding Gets or sets the vary-by-content encodings
+ * @property {string=} varyByContentEncoding Gets or sets the vary-by-content encodings
  * @property {VaryByCallback=} varyByCallback Gets or sets a vary-by-custom callback
  */
 

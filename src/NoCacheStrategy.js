@@ -16,6 +16,11 @@ class NoCacheStrategy extends DataCacheStrategy {
     }
 
     // eslint-disable-next-line no-unused-vars
+    async has(key) {
+        return;
+    }
+
+    // eslint-disable-next-line no-unused-vars
     async remove(key) {
         return;
     }

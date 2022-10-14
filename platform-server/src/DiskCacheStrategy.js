@@ -219,6 +219,41 @@ class DiskCacheStrategy extends DataCacheStrategy {
          }
     }
 
+    /**
+     * @param {string|CompositeKey} key 
+     * @returns {Promise<boolean>}
+     */
+    async has(key) {
+        //
+        /**
+         * @type {import('./DiskCache').DiskCacheContext}
+         */
+         let context;
+         let entry;
+         try {
+            context = this.rawCache.createContext();
+            if (typeof key === 'string') {
+                entry = {
+                    path: key,
+                    headers: null,
+                    params: null,
+                    customParams: null,
+                    doomed: false
+                }
+            } else {
+                entry = Object.assign({}, key, {
+                    doomed: false
+                });
+            }
+            const count = await context.model(DiskCacheEntry).find(entry).count();
+            return count > 0;
+         }  finally {
+            if (context) {
+                await context.finalizeAsync();
+            }
+        }
+    }
+
     // eslint-disable-next-line no-unused-vars
     async clear() {
         //
