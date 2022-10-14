@@ -74,13 +74,19 @@ class OutputCaching {
             if (options.varyByCallback) {
                 customParams = await options.varyByCallback(req);
             }
-            return {
+            const result = {
                 path,
                 headers,
                 contentEncoding,
                 params,
                 customParams
             };
+            if (req.headers.etag) {
+                Object.assign(result, {
+                    entityTag: req.headers.etag
+                })
+            }
+            return result;
         })().then((value) => {
             if (value == null) {
                 return next();

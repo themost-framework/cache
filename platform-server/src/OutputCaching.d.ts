@@ -33,6 +33,7 @@ declare global {
                 params?: string;
                 customParams?: string;
                 duration?: number;
+                entityTag?: string;
             }
         }
     }
