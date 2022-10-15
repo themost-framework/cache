@@ -34,7 +34,7 @@ class OnRemoveDiskCacheEntry {
 }
 
 @Entity({
-    version: '1.1.1'
+    version: '1.1.2'
 })
 @EntityListeners(OnRemoveDiskCacheEntry)
 @Table({
@@ -94,6 +94,16 @@ class DiskCacheEntry extends DataObject {
         type: 'Text'
     })
     contentEncoding;
+
+    /**
+     * @type {string}
+     */
+     @ColumnDefault(() => 'server')
+     @Column({
+        type: 'Text',
+        length: 24
+    })
+    location;
 
     /**
      * @type {string}

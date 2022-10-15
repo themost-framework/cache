@@ -3,7 +3,7 @@ import { Handler, Request, Response } from 'express';
 
 export declare interface PreOutputCacheConfiguration {
     duration?: number;
-    location?: 'server' | 'client'| 'none';
+    location?: 'any' | 'none' | 'server' | 'client' | 'serverAndClient';
     varyByContentEncoding?: string;
     varyByHeader?: string[];
     varyByParam?: string[];
@@ -18,7 +18,7 @@ export declare interface OutputCacheConfiguration {
 
 export declare class OutputCaching {
     static setup(config: OutputCacheConfiguration): Handler;
-    static preCache(options: any): Handler;
+    static preCache(options?: any): Handler;
 } 
 
 declare global {
@@ -27,6 +27,7 @@ declare global {
             cache: DataCacheStrategy;
             outputCache: {
                 path?: string;
+                location?: string;
                 duration?: number;
                 contentEncoding?: string;
                 headers?: string;
