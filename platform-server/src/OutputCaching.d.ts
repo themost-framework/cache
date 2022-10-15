@@ -27,7 +27,7 @@ declare global {
             cache: DataCacheStrategy;
             outputCache: {
                 path?: string;
-                location?: string;
+                location?: 'any' | 'none' | 'server' | 'client' | 'serverAndClient';
                 duration?: number;
                 contentEncoding?: string;
                 headers?: string;

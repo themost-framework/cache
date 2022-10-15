@@ -125,6 +125,22 @@ class OutputCaching {
     }
 
     /**
+     * @returns {import('@types/express').Handler}
+     */
+    static preClientCache() {
+        return function (req, res, next) {
+            if (req.outputCache == null) {
+                // do nothing and exit
+                return next();
+            }
+            // validate the given location
+            if (req.outputCache.location !== 'client' || req.outputCache.location !== 'any') {
+                return next();
+            }
+        }
+    }
+
+    /**
      * @param {import('./OutputCaching').PreOutputCacheConfiguration=} options
      * @returns {import('@types/express').Handler}
      */
