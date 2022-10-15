@@ -19,6 +19,7 @@
     "@themost/common": "^2.5.12",
     "@themost/data": "^2.7.4",
     "@themost/express": "^1.5.23",
+    "@themost/jspa": "^1.0.1",
     "@themost/sqlite": "^2.6.8",
     "@themost/xml": "^2.5.2",
     "cors": "^2.8.5",
@@ -36,6 +37,7 @@
     "dotenv": "^16.0.3",
     "eslint": "^8.25.0",
     "jest": "^29.1.2",
+    "module-alias": "^2.2.2",
     "nodemon": "^2.0.20",
     "supertest": "^6.3.0"
   },
@@ -45,7 +47,7 @@
       "spec"
     ],
     "execMap": {
-      "js": "node --require @babel/register --require dotenv/config"
+      "js": "node --require @babel/register --require module-alias/register --require dotenv/config"
     },
     "verbose": true,
     "env": {
@@ -53,5 +55,9 @@
       "PORT": "3000"
     },
     "ext": "js,json"
+  },
+  "_moduleAliases": {
+    "@themost/cache/platform-server": "../../platform-server/dist/index",
+    "@themost/cache": "../../dist/index"
   }
 }

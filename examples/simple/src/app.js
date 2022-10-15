@@ -2,6 +2,7 @@ import express from 'express';
 import cors from 'cors';
 import path from 'path';
 import {ExpressDataApplication, serviceRouter} from '@themost/express';
+import { OutputCaching } from '@themost/cache/platform-server'
 
 function getApplication() {
     // init app
@@ -21,7 +22,8 @@ function getApplication() {
     app.get('/', (req, res) => {
         return res.render('index');
     });
-    app.use('/api/', serviceRouter);
+    app.use(OutputCaching.setup());
+    app.use('/api/', OutputCaching.preCache(), serviceRouter);
 
     // and return
     return app;
