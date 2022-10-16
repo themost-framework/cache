@@ -127,6 +127,10 @@ class DiskCacheStrategy extends DataCacheStrategy {
                 }
             }).save(entry);
 
+            if (typeof key !== 'string') {
+                Object.assign(key, entry);
+            }
+
         } finally {
             if (context) {
                 await context.finalizeAsync();

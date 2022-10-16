@@ -18,7 +18,7 @@ export declare interface OutputCacheConfiguration {
 
 export declare class OutputCaching {
     static setup(config: OutputCacheConfiguration): Handler;
-    static preCache(options?: any): Handler;
+    static cache(options?: any): Handler;
 } 
 
 declare global {

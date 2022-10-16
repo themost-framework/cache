@@ -31,7 +31,7 @@ class OutputCachingMapper {
         const options = this.options;
         const duration = this.options.duration;
         const location = this.options.location;
-        const path = req.path;
+        const path = req.baseUrl.toLowerCase();
         // get headers
         let headers = null;
         if (options.varyByHeader && options.varyByHeader.length) {
@@ -198,7 +198,7 @@ class OutputCaching {
      * @param {import('./OutputCaching').PreOutputCacheConfiguration=} options
      * @returns {import('@types/express').Handler}
      */
-    static preCache(options) {
+    static cache(options) {
         // get caching options or defaults
         const cachingOptions = options || {
             location: 'server',
