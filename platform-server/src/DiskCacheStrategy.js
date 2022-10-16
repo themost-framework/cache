@@ -295,8 +295,6 @@ class DiskCacheStrategy extends DataCacheStrategy {
             }
         }
     }
-
-
 }
 
 export {

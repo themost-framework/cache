@@ -85,9 +85,10 @@ class OutputCachingMapper {
                 contentEncoding: options.varyByContentEncoding
             })
         }
-        if (req.headers.etag && (location === 'client' || location === 'any' || location === 'serverAndClient')) {
+        const ifNoneMatch = req.headers['if-none-match'];
+        if (ifNoneMatch && (location === 'client' || location === 'any' || location === 'serverAndClient')) {
             Object.assign(result, {
-                entityTag: req.headers.etag
+                entityTag: ifNoneMatch
             })
         }
         return result;
@@ -136,7 +137,64 @@ class OutputCaching {
             if (req.outputCache == null) {
                 return next();
             }
-            return next();
+            // set entry attributes in order to perform query for finding entry in cache
+            let item = {
+                path: req.outputCache.path,
+                location: req.outputCache.location,
+                params: req.outputCache.params,
+                headers: req.outputCache.headers,
+                customParams: req.outputCache.customParams,
+                doomed: false
+            }
+            // get cache location
+            const location = req.outputCache.location;
+            // validate that client is going to cache response
+            if ((location === 'client' || location === 'any' || location === 'serverAndClient') === false) {
+                return next();
+            } 
+            // try to find cache entry
+            // todo: is there any option to omit this operation?
+            return req.cache.find(item).then((entry) => {
+                res.set('Cache-Control', 'private');
+                if (location === 'any') {
+                    // if location is any set cache control to public
+                    res.set('Cache-Control', 'public');
+                }
+                // set entity tag
+                res.set('ETag',  req.outputCache.entityTag);
+                // set date
+                res.set('Date', new Date().toUTCString());
+                // if the given entityTag is the same with the cache entry
+                if (entry != null && req.outputCache.entityTag === entry.entityTag) {
+                    // set not modified
+                    res.status(304);
+                }
+                if (location === 'any' || location === 'client') {
+                    // if status is 304
+                    if (res.statusCode === 304) {
+                        return res.send();
+                    }
+                    // use cache entry
+                    if (entry != null) {
+                        res.set('ETag',  entry.entityTag);
+                        res.set('Date', new Date().toUTCString());
+                        return next();
+                    }
+                    // add cache entry
+                    return req.cache.add(req.outputCache, null).then(() => {
+                        // set entityTag again
+                        res.set('ETag',  req.outputCache.entityTag);
+                        res.set('Date', new Date().toUTCString());
+                        return next();
+                    }).catch((err) => {
+                        return next(err);
+                    });
+                }
+                // continue because response should be cached at server first
+                return next();
+            }).catch((err) => {
+                return next(err);
+            });
         }
     }
 
@@ -151,7 +209,21 @@ class OutputCaching {
                 });
             }
             return req.cache.get(req.outputCache).then((buffer) => {
-                return OutputCaching.noCache()(req, res, (err) => {
+                /**
+                 * @{import('@types/express').Handler}
+                 */
+                let cacheHandler;
+                // location server, none
+                if (req.outputCache.location === 'server' || req.outputCache.location === 'none') {
+                    cacheHandler = OutputCaching.noCache();
+                } else {
+                    // location serverAndClient, client, any
+                    cacheHandler = OutputCaching.client();
+                }
+                if (typeof cacheHandler !== 'function') {
+                    return next(new Error('Invalid caching mechanism location'));
+                }
+                return cacheHandler(req, res, (err) => {
                     if (err) {
                         return next(err);
                     }
@@ -233,13 +305,34 @@ class OutputCaching {
                 if (value == null) {
                     return OutputCaching.noCache()(req, res, next);
                 }
+                // if locations is none
+                if (value.location === 'none') {
+                    // do not use caching at all
+                    // The no-store response directive indicates that any caches of any kind (private or shared)
+                    // should not store this response.
+                    return OutputCaching.noCache()(req, res, next);
+                }
+                // reset caching location to protect request with authorization
+                if (req.headers.authorization) {
+                    // if location is any
+                    if (value.location === 'any') {
+                        // reset to serverAndClient to protect resource
+                        // this will generate a Cache-Control header with private directive
+                        // The private response directive indicates that the response can be stored only
+                        // in a private cache
+                        value.location = 'serverAndClient';
+                    }
+                }
                 // set output cache attributes
                 req.outputCache = value;
+                
                 // use client-side caching
-                if (cachingOptions.location === 'client') {
-                    return OutputCaching.client()(req, res, next);
+                if (cachingOptions.location === 'client' || cachingOptions.location === 'any') {
+                    return OutputCaching.client()(req, res, (err) => {
+                        return next(err);
+                    });
                     // use server-side caching
-                } else if (cachingOptions.location === 'server') {
+                } else if (cachingOptions.location === 'server' || cachingOptions.location === 'serverAndClient') {
                     return OutputCaching.server()(req, res, next);
                 }
                 return next();
