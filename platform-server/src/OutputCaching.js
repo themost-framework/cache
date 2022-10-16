@@ -55,7 +55,7 @@ class OutputCachingMapper {
                 // get any query param
                 varyByParam = Object.keys(req.query);
             } else {
-                varyByParam = options.varyByParaml
+                varyByParam = options.varyByParam;
             }
             if (varyByParam.length > 0) {
                 params = varyByParam.sort((a, b) => {
@@ -154,7 +154,7 @@ class OutputCaching {
             } 
             // try to find cache entry
             // todo: is there any option to omit this operation?
-            return req.cache.find(item).then((entry) => {
+            return req.cache.has(item).then((entry) => {
                 res.set('Cache-Control', 'private');
                 if (location === 'any') {
                     // if location is any set cache control to public

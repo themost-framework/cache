@@ -22,7 +22,7 @@ export declare abstract class DataCacheStrategy extends ConfigurationStrategy im
     abstract remove(key: string | CompositeCacheKey): Promise<any>;
     abstract clear(): Promise<any>;
     abstract get(key: string | CompositeCacheKey): Promise<any>;
-    abstract has(key: string | CompositeCacheKey): Promise<boolean>;
+    abstract has(key: string | CompositeCacheKey): Promise<CompositeCacheKey>;
     getOrDefault(key: string | CompositeCacheKey, getFunc: GetItemFunction, absoluteExpiration?: number): Promise<any>;
 
 }

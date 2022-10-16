@@ -63,7 +63,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
      * 
      * Gets a cached value defined by the given key.
      * @param {string|CompositeCacheKey} key
-     * @returns {Promise<boolean>}
+     * @returns {Promise<CompositeCacheKey>}
      */
     // eslint-disable-next-line no-unused-vars
     async has(key) {

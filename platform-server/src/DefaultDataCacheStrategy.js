@@ -51,7 +51,13 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
     }
 
     async has(key) {
-        return this.rawCache.has(key);
+        const exists = this.rawCache.has(key);
+        if (exists) {
+            return {
+                path: key
+            }
+        }
+        return null;
     }
 
     /**

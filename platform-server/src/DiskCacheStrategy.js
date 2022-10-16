@@ -225,7 +225,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
 
     /**
      * @param {string|CompositeKey} key 
-     * @returns {Promise<boolean>}
+     * @returns {Promise<CompositeKey>}
      */
     async has(key) {
         //
@@ -249,8 +249,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
                     doomed: false
                 });
             }
-            const count = await context.model(DiskCacheEntry).find(entry).count();
-            return count > 0;
+            return await context.model(DiskCacheEntry).find(entry).getTypedItem();
          }  finally {
             if (context) {
                 await context.finalizeAsync();
