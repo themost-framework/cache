@@ -109,7 +109,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
             }
 
             // set default content encoding
-            const contentEncoding = (value instanceof ArrayBuffer) ? 'application/octet-stream': 'application/json';
+            const contentEncoding = (value instanceof Buffer) ? 'application/octet-stream': 'application/json';
             entry.contentEncoding = entry.contentEncoding || contentEncoding;
             await context.model(DiskCacheEntry).subscribeOnce('after.save', async (event) => {
                 if (event.state !== 1) {
@@ -120,10 +120,10 @@ class DiskCacheStrategy extends DataCacheStrategy {
                  */
                 const target = event.model.convert(event.target);
                 // write content
-                if (value instanceof ArrayBuffer) {
+                if (value instanceof Buffer) {
                     await target.write(value);
                 } else {
-                    await target.write(JSON.stringify(value));
+                    await target.write(Buffer.from(JSON.stringify(value)));
                 }
             }).save(entry);
 
@@ -169,7 +169,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
              }
              // get file content
              const buffer = await item.read();
-             if (item.contentEncoding === 'application/json') {
+             if (item.contentEncoding && item.contentEncoding.startsWith('application/json')) {
                 return JSON.parse(buffer);
              }
              return buffer;
@@ -262,6 +262,33 @@ class DiskCacheStrategy extends DataCacheStrategy {
     finalize() {
         if (this.killCheckPeriod) {
             clearInterval(this.killCheckPeriod);
+        }
+    }
+
+    /**
+     * @param {string|CompositeKey} key 
+     * @returns Promise<DiskCacheEntry>
+     */
+    async find(key) {
+        let context;
+        try {
+            context = this.rawCache.createContext();
+            let entry;
+            if (typeof key === 'string') {
+                entry = {
+                    path: key,
+                    headers: null,
+                    params: null,
+                    customParams: null
+                }
+            } else {
+                entry = Object.assign({}, key);
+            }
+            return await context.model(DiskCacheEntry).find(entry).getTypedItem();
+        } finally {
+            if (context) {
+                await context.finalizeAsync();
+            }
         }
     }
 

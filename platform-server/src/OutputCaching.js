@@ -1,4 +1,4 @@
-import { ConfigurationBase } from '@themost/common';
+import { ConfigurationBase, TraceUtils } from '@themost/common';
 import { MD5 } from 'crypto-js';
 import { DiskCacheStrategy } from './DiskCacheStrategy';
 
@@ -32,7 +32,6 @@ class OutputCachingMapper {
         const duration = this.options.duration;
         const location = this.options.location;
         const path = req.path;
-        const contentEncoding = options.varyByContentEncoding;
         // get headers
         let headers = null;
         if (options.varyByHeader && options.varyByHeader.length) {
@@ -58,14 +57,16 @@ class OutputCachingMapper {
             } else {
                 varyByParam = options.varyByParaml
             }
-            params = varyByParam.sort((a, b) => {
-                return sortAscending(a, b);
-            }).map((queryParam) => {
-                if (Object.prototype.hasOwnProperty.call(req.query, queryParam)) {
-                    return `${queryParam}=${encodeURIComponent(req.query[queryParam])}`;
-                }
-                return `${queryParam}=`;
-            }).join('&');
+            if (varyByParam.length > 0) {
+                params = varyByParam.sort((a, b) => {
+                    return sortAscending(a, b);
+                }).map((queryParam) => {
+                    if (Object.prototype.hasOwnProperty.call(req.query, queryParam)) {
+                        return `${queryParam}=${encodeURIComponent(req.query[queryParam])}`;
+                    }
+                    return `${queryParam}=`;
+                }).join('&');
+            }
         }
         let customParams;
         if (options.varyByCallback) {
@@ -76,11 +77,15 @@ class OutputCachingMapper {
             location,
             duration,
             headers,
-            contentEncoding,
             params,
             customParams
         };
-        if (req.headers.etag) {
+        if (options.varyByContentEncoding) {
+            Object.assign(result, {
+                contentEncoding: options.varyByContentEncoding
+            })
+        }
+        if (req.headers.etag && (location === 'client' || location === 'any' || location === 'serverAndClient')) {
             Object.assign(result, {
                 entityTag: req.headers.etag
             })
@@ -105,7 +110,6 @@ class OutputCaching {
             Object.defineProperty(req, 'cache', {
                 configurable: true,
                 enumerable: false,
-                writable: false,
                 get: () => cacheStrategy
             });
             return next();
@@ -127,16 +131,66 @@ class OutputCaching {
     /**
      * @returns {import('@types/express').Handler}
      */
-    static preClientCache() {
+    static client() {
         return function (req, res, next) {
             if (req.outputCache == null) {
-                // do nothing and exit
                 return next();
             }
-            // validate the given location
-            if (req.outputCache.location !== 'client' || req.outputCache.location !== 'any') {
-                return next();
+            return next();
+        }
+    }
+
+    /**
+     * @returns {import('@types/express').Handler}
+     */
+     static server() {
+        return function (req, res, next) {
+            if (req.outputCache == null) {
+                return OutputCaching.noCache()(req, res, (err) => {
+                    return next(err);
+                });
             }
+            return req.cache.get(req.outputCache).then((buffer) => {
+                return OutputCaching.noCache()(req, res, (err) => {
+                    if (err) {
+                        return next(err);
+                    }
+                    if (buffer != null) {
+                        return res.send(buffer);
+                    }
+                    const superWrite = res.write;
+                    const superEnd = res.end;
+                    let chunks = [];
+                    // override write
+                    res.write = (...args) => {
+                        chunks.push(Buffer.from(args[0]));
+                        superWrite.apply(res, args);
+                    };
+                    // override end
+                    res.end = (...args) => {
+                        if (args[0]) {
+                            chunks.push(Buffer.from(args[0]));
+                        }
+                        if (res.statusCode === 200 || res.statusCode === 204) {
+                            req.outputCache.contentEncoding = res.getHeader('Content-Type');
+                            return req.cache.add(req.outputCache, Buffer.concat(chunks)).then(() => {
+                                return superEnd.apply(res, args);
+                            }).catch((err) => {
+                                TraceUtils.error('An error occurred while adding cache entry');
+                                TraceUtils.error(err);
+                                return superEnd.apply(res, args);
+                            }).finally(() => {
+                                chunks = [];
+                            });
+                        }
+                        return superEnd.apply(res, args);
+                    };
+                    return next();
+                });
+            }).catch((err) => {
+                return next(err);
+            })
+            
         }
     }
 
@@ -166,6 +220,9 @@ class OutputCaching {
             } 
         }
         return function (req, res, next) {
+            if ((req.method === 'GET' || req.method === 'HEAD') === false) {
+                return next();
+            }
             if (cachingOptions.duration <= 0) {
                 // do nothing (no-cache)
                 return next();
@@ -178,21 +235,14 @@ class OutputCaching {
                 }
                 // set output cache attributes
                 req.outputCache = value;
-                return req.cache.has(req.outputCache).then((exists) => {
-                    if (exists === false) {
-                        return next();
-                    }
-                    // use client-side caching
-                    if (cachingOptions.location === 'client') {
-                        return res.status(304).send();
-                        // use server-side caching
-                    } else if (cachingOptions.location === 'server') {
-                        return req.cache.get(req.outputCache).then((content) => {
-                            res.status(200).send(content);
-                        });
-                    }
-                    return next();
-                });
+                // use client-side caching
+                if (cachingOptions.location === 'client') {
+                    return OutputCaching.client()(req, res, next);
+                    // use server-side caching
+                } else if (cachingOptions.location === 'server') {
+                    return OutputCaching.server()(req, res, next);
+                }
+                return next();
             }).catch((err) => {
                 return next(err);
             });

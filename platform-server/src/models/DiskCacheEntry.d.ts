@@ -1,7 +1,7 @@
 import { DataObject } from '@themost/data';
 
 export declare class DiskCacheEntry extends DataObject {
-    id?: number;
+    id?: string;
     path?: string;
     location?: 'any' | 'none' | 'server' | 'client' | 'serverAndClient';
     contentEncoding?: string;

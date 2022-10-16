@@ -41,6 +41,7 @@ class OnRemoveDiskCacheEntry {
     uniqueConstraints: [{
         columnNames: [
             'path',
+            'location',
             'contentEncoding',
             'headers',
             'params',
@@ -238,7 +239,7 @@ class DiskCacheEntry extends DataObject {
         // get file path
         const filePath = path.resolve(finalFileDir, fileName);
         // and write file
-        await writeFileAsync(filePath, content);
+        await writeFileAsync(filePath, content, 'binary');
     }
 
 }
