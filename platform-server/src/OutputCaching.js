@@ -1,4 +1,5 @@
 import { ConfigurationBase, TraceUtils } from '@themost/common';
+import { DataCacheStrategy } from '@themost/cache';
 import { MD5 } from 'crypto-js';
 import { DiskCacheStrategy } from './DiskCacheStrategy';
 
@@ -98,15 +99,20 @@ class OutputCachingMapper {
 
 class OutputCaching {
     /**
-     * @param {import('./OutputCaching').OutputCacheConfiguration} config
+     * @param {import('./OutputCaching').OutputCacheConfiguration|import('@themost/cache').DataCacheStrategy} configurationOrService
      * @returns {import('@types/express').Handler}
      */
-    static setup(config) {
-        const configuration = new ConfigurationBase();
-        if (config) {
-            configuration.getSourceAt('settings/cache', config);
+    static setup(configurationOrService) {
+        let cacheStrategy;
+        if (configurationOrService instanceof DataCacheStrategy) {
+            cacheStrategy = configurationOrService;
+        } else {
+            const configuration = new ConfigurationBase();
+            if (configurationOrService) {
+                configuration.setSourceAt('settings/cache', configurationOrService);
+            }
+            cacheStrategy = new DiskCacheStrategy(configuration);
         }
-        const cacheStrategy = new DiskCacheStrategy(configuration);
         return function (req, res, next) {
             Object.defineProperty(req, 'cache', {
                 configurable: true,
