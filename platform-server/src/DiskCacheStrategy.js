@@ -1,8 +1,8 @@
 import { DataCacheStrategy } from '@themost/cache';
 import { TraceUtils, LangUtils } from '@themost/common';
 import { QueryExpression } from '@themost/query';
-import { DiskCache } from './DiskCache';
-import { DiskCacheEntry } from './models/DiskCacheEntry';
+import { IndexedCache } from './IndexedCache';
+import { CacheEntry } from './models/CacheEntry';
 
 class DiskCacheStrategy extends DataCacheStrategy {
 
@@ -38,7 +38,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
         if (expiration > 0) {
             this.absoluteExpiration = expiration;
         }
-        this.rawCache = new DiskCache(configuration);
+        this.rawCache = new IndexedCache(configuration);
         this.killCheckPeriod = setInterval(() => {
             if (this.checkingPeriod) {
                 return;
@@ -55,12 +55,12 @@ class DiskCacheStrategy extends DataCacheStrategy {
 
     async onCheck() {
         /**
-         * @type {import('./DiskCache').DiskCacheContext}
+         * @type {import('./IndexedCache').IndexedCache}
          */
          let context;
          try {
              context = this.rawCache.createContext();
-             const model = context.model(DiskCacheEntry);
+             const model = context.model(CacheEntry);
              await context.db.executeAsync(
                  new QueryExpression().update(model.sourceAdapter).set(
                      {
@@ -68,10 +68,10 @@ class DiskCacheStrategy extends DataCacheStrategy {
                      }
                  ).where('expiredAt').lowerOrEqual(new Date())
              );
-             const items = await context.model(DiskCacheEntry).where('doomed').equal(true).select('id').getItems();
+             const items = await context.model(CacheEntry).where('doomed').equal(true).select('id').getItems();
              if (items.length) {
                  for (const item of items) {
-                     await context.model(DiskCacheEntry).remove(item);
+                     await context.model(CacheEntry).remove(item);
                  }
              }
          } finally {
@@ -89,7 +89,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
      */
     async add(key, value, absoluteExpiration) {
         /**
-         * @type {import('./DiskCache').DiskCacheContext}
+         * @type {import('./IndexedCache').IndexedCacheContext}
          */
         let context;
         try {
@@ -111,12 +111,12 @@ class DiskCacheStrategy extends DataCacheStrategy {
             // set default content encoding
             const contentEncoding = (value instanceof Buffer) ? 'application/octet-stream': 'application/json';
             entry.contentEncoding = entry.contentEncoding || contentEncoding;
-            await context.model(DiskCacheEntry).subscribeOnce('after.save', async (event) => {
+            await context.model(CacheEntry).subscribeOnce('after.save', async (event) => {
                 if (event.state !== 1) {
                     return;
                 }
                 /**
-                 * @type {DiskCacheEntry}
+                 * @type {CacheEntry}
                  */
                 const target = event.model.convert(event.target);
                 // write content
@@ -144,7 +144,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
      */
     async get(key) {
         /**
-         * @type {import('./DiskCache').DiskCacheContext}
+         * @type {import('./IndexedCache').IndexedCacheContext}
          */
          let context;
          try {
@@ -165,11 +165,14 @@ class DiskCacheStrategy extends DataCacheStrategy {
              }
              /**
               * get entry
-              * @type {DiskCacheEntry}
+              * @type {CacheEntry}
               */
-             const item = await context.model(DiskCacheEntry).find(entry).getTypedItem();
+             const item = await context.model(CacheEntry).find(entry).getTypedItem();
              if (item == null) {
                 return null;
+             }
+             if (typeof key !== 'string') {
+                Object.assign(key, entry);
              }
              // get file content
              const buffer = await item.read();
@@ -191,7 +194,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
      */
     async remove(key) {
         /**
-         * @type {import('./DiskCache').DiskCacheContext}
+         * @type {import('./IndexedCache').IndexedCache}
          */
          let context;
          try {
@@ -209,13 +212,13 @@ class DiskCacheStrategy extends DataCacheStrategy {
              }
              /**
               * get entry
-              * @type {DiskCacheEntry}
+              * @type {CacheEntry}
               */
-             const item = await context.model(DiskCacheEntry).find(entry).getItem();
+             const item = await context.model(CacheEntry).find(entry).getItem();
              if (item == null) {
                 return;
              }
-             await context.model(DiskCacheEntry).remove(item); 
+             await context.model(CacheEntry).remove(item); 
          } finally {
              if (context) {
                  await context.finalizeAsync();
@@ -230,7 +233,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
     async has(key) {
         //
         /**
-         * @type {import('./DiskCache').DiskCacheContext}
+         * @type {import('./IndexedCache').IndexedCache}
          */
          let context;
          let entry;
@@ -249,7 +252,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
                     doomed: false
                 });
             }
-            return await context.model(DiskCacheEntry).find(entry).getTypedItem();
+            return await context.model(CacheEntry).find(entry).getTypedItem();
          }  finally {
             if (context) {
                 await context.finalizeAsync();
@@ -270,7 +273,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
 
     /**
      * @param {string|CompositeKey} key 
-     * @returns Promise<DiskCacheEntry>
+     * @returns Promise<import('@themost/cache').CacheEntry>
      */
     async find(key) {
         let context;
@@ -287,7 +290,7 @@ class DiskCacheStrategy extends DataCacheStrategy {
             } else {
                 entry = Object.assign({}, key);
             }
-            return await context.model(DiskCacheEntry).find(entry).getTypedItem();
+            return await context.model(CacheEntry).find(entry).getTypedItem();
         } finally {
             if (context) {
                 await context.finalizeAsync();

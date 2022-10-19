@@ -233,6 +233,21 @@ class OutputCaching {
                     if (err) {
                         return next(err);
                     }
+                    if (req.outputCache.location === 'serverAndClient') {
+                        if (req.outputCache.entityTag == null) {
+                            Object.assign(req.outputCache, {
+                                createdAt: new Date(),
+                                modifiedAt: new Date()
+                            });
+                            req.outputCache.entityTag = MD5(req.outputCache).toString();
+                        }    
+                        // send not modified
+                        res.set('ETag',  req.outputCache.entityTag);
+                        res.set('Date', req.outputCache.createdAt.toUTCString());
+                    }
+                    if (res.statusCode === 304) {
+                        return res.send();
+                    }
                     if (buffer != null) {
                         return res.send(buffer);
                     }

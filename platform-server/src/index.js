@@ -1,5 +1,5 @@
 export * from './models/index';
-export * from './DiskCache';
+export * from './IndexedCache';
 export * from './DefaultDataCacheStrategy';
 export * from './DiskCacheStrategy';
 export * from './OutputCaching';
