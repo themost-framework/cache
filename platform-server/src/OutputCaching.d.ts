@@ -3,6 +3,7 @@ import { Handler, Request, Response } from 'express';
 
 export declare interface PreOutputCacheConfiguration {
     duration?: number;
+    immutable?: boolean;
     location?: 'any' | 'none' | 'server' | 'client' | 'serverAndClient';
     varyByContentEncoding?: string;
     varyByHeader?: string[];

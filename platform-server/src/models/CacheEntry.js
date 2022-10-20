@@ -147,7 +147,7 @@ class CacheEntry extends DataObject {
     /**
      * @type {Date}
      */
-     @Formula((event) => moment(event.target.createdAt).add(event.target.duration, 'seconds').toDate())
+     @ColumnDefault((event) => moment(event.target.createdAt).add(event.target.duration, 'seconds').toDate())
      @Column({
         nullable: false
      })
@@ -165,8 +165,26 @@ class CacheEntry extends DataObject {
      @Column({
         type: 'Text'
     })
-    @Formula((event) => `W/"${MD5(JSON.stringify(event.target)).toString()}"`)
+    @ColumnDefault((event) => CacheEntry.inferEntityTag(target))
     entityTag;
+
+    /**
+     * 
+     * @param {CacheEntry|*} target 
+     * @returns {string}
+     */
+    static inferEntityTag(target) {
+        return `W/"${MD5(JSON.stringify({
+            path: target.path,
+            location: target.location,
+            contentEncoding: target.contentEncoding,
+            headers: target.headers,
+            params: target.params,
+            customParams: target.customParams,
+            duration: target.duration,
+            doomed: target.doomed
+        })).toString()}"`
+    }
 
     /**
      * Reads file from disk cache

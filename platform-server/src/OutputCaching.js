@@ -2,6 +2,7 @@ import { ConfigurationBase, TraceUtils } from '@themost/common';
 import { DataCacheStrategy } from '@themost/cache';
 import { MD5 } from 'crypto-js';
 import { DiskCacheStrategy } from './DiskCacheStrategy';
+import { CacheEntry } from './models';
 
 function sortAscending(a, b) {
     if (a < b) {
@@ -166,31 +167,29 @@ class OutputCaching {
                     // if location is any set cache control to public
                     res.set('Cache-Control', 'public');
                 }
-                // set entity tag
-                res.set('ETag',  req.outputCache.entityTag);
-                // set date
+                // set entity tag (a temporary etag)
+                res.set('ETag', entry ? entry.entityTag : req.outputCache.entityTag);
+                // set date (a temporary date)
                 res.set('Date', new Date().toUTCString());
                 // if the given entityTag is the same with the cache entry
-                if (entry != null && req.outputCache.entityTag === entry.entityTag) {
-                    // set not modified
-                    res.status(304);
+                if (entry != null) {
+                    if  (req.outputCache.entityTag === entry.entityTag) {
+                        // set not modified
+                        res.status(304);
+                    }
+                    // assign cache entry
+                    Object.assign(req.outputCache, entry);
                 }
                 if (location === 'any' || location === 'client') {
                     // if status is 304
                     if (res.statusCode === 304) {
                         return res.send();
                     }
-                    // use cache entry
-                    if (entry != null) {
-                        res.set('ETag',  entry.entityTag);
-                        res.set('Date', new Date().toUTCString());
-                        return next();
-                    }
                     // add cache entry
                     return req.cache.add(req.outputCache, null).then(() => {
                         // set entityTag again
                         res.set('ETag',  req.outputCache.entityTag);
-                        res.set('Date', new Date().toUTCString());
+                        res.set('Date', req.outputCache.createdAt.toUTCString());
                         return next();
                     }).catch((err) => {
                         return next(err);
@@ -239,11 +238,10 @@ class OutputCaching {
                                 createdAt: new Date(),
                                 modifiedAt: new Date()
                             });
-                            req.outputCache.entityTag = MD5(req.outputCache).toString();
+                            req.outputCache.entityTag = CacheEntry.inferEntityTag(req.outputCache);
                         }    
                         // send not modified
                         res.set('ETag',  req.outputCache.entityTag);
-                        res.set('Date', req.outputCache.createdAt.toUTCString());
                     }
                     if (res.statusCode === 304) {
                         return res.send();
