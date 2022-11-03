@@ -3,6 +3,7 @@ import { DataCacheStrategy } from '@themost/cache';
 import { MD5 } from 'crypto-js';
 import { DiskCacheStrategy } from './DiskCacheStrategy';
 import { CacheEntry } from './models';
+import url from 'url';
 
 function sortAscending(a, b) {
     if (a < b) {
@@ -33,7 +34,8 @@ class OutputCachingMapper {
         const options = this.options;
         const duration = this.options.duration;
         const location = this.options.location;
-        const path = req.baseUrl.toLowerCase();
+        const originalUrl = url.parse(req.originalUrl.toLowerCase());
+        const path = originalUrl.pathname.replace(/\/$/, ''); // remove trailing slash
         // get headers
         let headers = null;
         if (options.varyByHeader && options.varyByHeader.length) {

@@ -165,7 +165,7 @@ class CacheEntry extends DataObject {
      @Column({
         type: 'Text'
     })
-    @ColumnDefault((event) => CacheEntry.inferEntityTag(target))
+    @ColumnDefault((event) => CacheEntry.inferEntityTag(event.target))
     entityTag;
 
     /**
