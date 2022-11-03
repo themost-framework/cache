@@ -1,19 +1,13 @@
-import { DataObject } from '@themost/data';
+import { DataCacheStrategy, DataObject } from '@themost/data';
 import { Args, Guid, TraceUtils } from '@themost/common';
 import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove, EntityListeners } from '@themost/jspa';
-// eslint-disable-next-line no-unused-vars
-import {readFile, writeFile, unlink, stat} from 'fs';
-import path from 'path';
-import {promisify} from 'util';
-import mkdirp from 'mkdirp';
 import { MD5 } from 'crypto-js';
 
 const moment = require('moment');
 
-const readFileAsync = promisify(readFile);
-const statAsync = promisify(stat);
-const writeFileAsync = promisify(writeFile);
-const unlinkAsync = promisify(unlink);
+class ContainerConfiguration {
+
+}
 
 class OnRemoveCacheEntry {
     @PostRemove()
@@ -187,77 +181,43 @@ class CacheEntry extends DataObject {
     }
 
     /**
-     * Reads file from disk cache
+     * Reads content from cache
      * @returns Promise<Buffer>
      */
     async read() {
-        Args.check(Guid.isGuid(this.id), 'Entry identifier must be a valid uuid at this context');
-        const fileName = this.id; // e.g. 929a9730-478e-11ed-b878-0242ac120002
-        const fileDir = fileName.substring(0, 1); // e.g. 9
-        let rootDir = this.context.getConfiguration().getSourceAt('settings/cache/rootDir');
-        if (rootDir == null) {
-            rootDir = '.cache/indexedCache';
-        }
-        const finalRootDir = path.resolve(process.cwd(), rootDir);
-        // get file path
-        const filePath = path.resolve(finalRootDir, fileDir, fileName);
         /**
-         * @type {Stats}
+         * @type {import('@themost/cache').CacheReader}
          */
-        const stats = await statAsync(path.resolve(finalRootDir, fileDir, fileName));
-        // validate
-        Args.check(stats.isFile(), 'Entry cannot be found or is inaccessible');
-        // and return
-        return await readFileAsync(filePath);
-    }
-
-    async unlink() {
-        Args.check(Guid.isGuid(this.id), 'Entry identifier must be a valid uuid at this context');
-        const fileName = this.id; // e.g. 929a9730-478e-11ed-b878-0242ac120002
-        const fileDir = fileName.substring(0, 1); // e.g. 9
-        let rootDir = this.context.getConfiguration().getSourceAt('settings/cache/rootDir');
-        if (rootDir == null) {
-            rootDir =  '.cache/indexedCache'
-        }
-        const finalRootDir = path.resolve(process.cwd(), rootDir);
-        // get file path
-        const filePath = path.resolve(finalRootDir, fileDir, fileName);
-        try {
-            /**
-             * @type {Stats}
-             */
-            const stats = await statAsync(path.resolve(finalRootDir, fileDir, fileName));
-            // validate
-            Args.check(stats.isFile(), 'Entry cannot be found or is inaccessible');
-            // and return
-            return await unlinkAsync(filePath);
-        } catch (err) {
-            if (err.code === 'ENOENT') {
-                return;
-            }
-            throw err;
-        }
+         const cache = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheStrategy);
+         Args.check(typeof cache.read === 'function', new Error('Application cache strategy does not support reading cache.'));
+         return cache.read(this);
     }
 
     /**
+     * Unlinks content from cache
+     * @returns Promise<void>
+     */
+    async unlink() {
+        /**
+         * @type {import('@themost/cache').CacheWriter}
+         */
+         const cache = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheStrategy);
+         Args.check(typeof cache.unlink === 'function', new Error('Application cache strategy does not support writing cache.'));
+         return cache.unlink(this);
+    }
+
+    /**
+     * Writes content to cache
      * @param {*} content 
-     * @returns Promise<string>
+     * @returns Promise<void>
      */
     async write(content) {
-        Args.check(Guid.isGuid(this.id), 'Entry identifier must be a valid uuid at this context');
-        const fileName = this.id; // e.g. 929a9730-478e-11ed-b878-0242ac120002
-        const fileDir = fileName.substring(0, 1); // e.g. 9
-        let rootDir = this.context.getConfiguration().getSourceAt('settings/cache/rootDir');
-        if (rootDir == null) {
-            rootDir =  '.cache/indexedCache'
-        }
-        const finalFileDir = path.resolve(process.cwd(), rootDir, fileDir);
-        // ensure that directory exists
-        await mkdirp(finalFileDir);
-        // get file path
-        const filePath = path.resolve(finalFileDir, fileName);
-        // and write file
-        await writeFileAsync(filePath, content, 'binary');
+        /**
+         * @type {import('@themost/cache').CacheWriter}
+         */
+        const cache = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheStrategy);
+        Args.check(typeof cache.write === 'function', new Error('Application cache strategy does not support writing cache.'));
+        return cache.write(this, content);
     }
 
 }

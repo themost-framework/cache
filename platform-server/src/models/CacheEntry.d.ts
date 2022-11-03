@@ -1,6 +1,7 @@
 import { DataObject } from '@themost/data';
+import { CacheItem } from '@themost/cache';
 
-export declare class CacheEntry extends DataObject {
+export declare class CacheEntry extends DataObject implements CacheItem {
 
     static inferEntityTag(target: CacheEntry);
 

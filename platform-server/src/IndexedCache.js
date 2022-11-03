@@ -11,6 +11,10 @@ class IndexedCacheContext extends DefaultDataContext {
     }
 }
 
+class ContainerConfiguration {
+
+}
+
 class IndexedCache extends DataApplication {
 
     static get DefaultRootDir() {
@@ -69,6 +73,10 @@ class IndexedCache extends DataApplication {
         }
         // disable internal cache
         this.configuration.useStrategy(DataCacheStrategy, NoCacheStrategy);
+        // get container cache
+        this.configuration.useStrategy(ContainerConfiguration, function() {
+            return containerConfiguration;
+        });
     }
 
     createContext() {

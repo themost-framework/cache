@@ -26,3 +26,29 @@ export declare abstract class DataCacheStrategy extends ConfigurationStrategy im
     getOrDefault(key: string | CompositeCacheKey, getFunc: GetItemFunction, absoluteExpiration?: number): Promise<any>;
 
 }
+
+export declare interface CacheItem {
+    id?: string;
+    path?: string;
+    location?: 'any' | 'none' | 'server' | 'client' | 'serverAndClient';
+    contentEncoding?: string;
+    headers?: string;
+    params?: string;
+    customParams?: string;
+    duration?: number;
+    doomed?: boolean;
+    createdAt?: Date;
+    expiredAt?: Date;
+    modifiedAt?: Date;
+    entityTag?: Date;
+}
+
+
+export declare interface CacheReader {
+    read(entry: CacheItem): Promise<Buffer>;
+}
+
+export declare interface CacheWriter {
+    write(entry: CacheItem, content: string | ArrayBufferView): Promise<void>;
+    unlink(entry: CacheItem): Promise<void>;
+}
