@@ -1,5 +1,6 @@
 import { ConfigurationBase } from '@themost/common';
 import { DiskCacheStrategy, IndexedCache, CacheEntry } from '@themost/cache/platform-server';
+import { DataCacheStrategy } from '@themost/cache';
 import { QueryExpression } from '@themost/query';
 
 describe('DataCacheStrategy', () => {
@@ -9,7 +10,9 @@ describe('DataCacheStrategy', () => {
      */
     let service;
     beforeEach(() => {
-        service = new DiskCacheStrategy(new ConfigurationBase('.'));
+        const configuration = new ConfigurationBase('.');
+        configuration.useStrategy(DataCacheStrategy, DiskCacheStrategy);
+        service = configuration.getStrategy(DataCacheStrategy);
     })
 
     afterEach(async () => {
