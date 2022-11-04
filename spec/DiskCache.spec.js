@@ -1,17 +1,17 @@
 import { ConfigurationBase } from '@themost/common';
-import { DiskCacheStrategy, IndexedCache, CacheEntry } from '@themost/cache/platform-server';
+import { IndexedCacheStrategy, IndexedCache, CacheEntry } from '@themost/cache/platform-server';
 import { DataCacheStrategy } from '@themost/cache';
 import { QueryExpression } from '@themost/query';
 
 describe('DataCacheStrategy', () => {
 
     /**
-     * @type {DiskCacheStrategy}
+     * @type {IndexedCacheStrategy}
      */
     let service;
     beforeEach(() => {
         const configuration = new ConfigurationBase('.');
-        configuration.useStrategy(DataCacheStrategy, DiskCacheStrategy);
+        configuration.useStrategy(DataCacheStrategy, IndexedCacheStrategy);
         service = configuration.getStrategy(DataCacheStrategy);
     })
 
@@ -20,7 +20,7 @@ describe('DataCacheStrategy', () => {
     });
 
     it('should try to create instance', async () => {
-        const service1 = new DiskCacheStrategy(new ConfigurationBase('.'));
+        const service1 = new IndexedCacheStrategy(new ConfigurationBase('.'));
         expect(service1).toBeTruthy();
         expect(service1.rawCache).toBeInstanceOf(IndexedCache);
         await service1.finalize();

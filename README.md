@@ -33,13 +33,13 @@ Configure absolute expiration timeout by setting `absoluteExpiration` under `set
 
 This setting is going to be used by [node-cache](https://github.com/node-cache/node-cache#initialize-init) which is the caching engine initiated by `@themost/cache#DefaultDataCacheStrategy` strategy.
 
-`@themost/cache/platform-server#DiskCacheStrategy` is an alternative caching strategy which uses disk for caching items.
+`@themost/cache/platform-server#IndexedCacheStrategy` is an alternative caching strategy which uses disk for caching items.
 
     {
         "services": [
             {
                 "serviceType": "@themost/cache#DataCacheStrategy",
-                "strategyType": "@themost/cache/platform-server#DiskCacheStrateg"
+                "strategyType": "@themost/cache/platform-server#IndexedCacheStrategy"
             }
         ]
     }

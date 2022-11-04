@@ -1,7 +1,7 @@
 import { ConfigurationBase, TraceUtils } from '@themost/common';
 import { DataCacheStrategy } from '@themost/cache';
 import { MD5 } from 'crypto-js';
-import { DiskCacheStrategy } from './DiskCacheStrategy';
+import { IndexedCacheStrategy } from './IndexedCacheStrategy';
 import { CacheEntry } from './models';
 import url from 'url';
 
@@ -114,7 +114,7 @@ class OutputCaching {
             if (configurationOrService) {
                 configuration.setSourceAt('settings/cache', configurationOrService);
             }
-            cacheStrategy = new DiskCacheStrategy(configuration);
+            cacheStrategy = new IndexedCacheStrategy(configuration);
         }
         return function (req, res, next) {
             Object.defineProperty(req, 'cache', {
