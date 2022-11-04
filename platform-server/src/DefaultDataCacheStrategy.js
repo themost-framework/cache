@@ -50,6 +50,16 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
         return !!count;
     }
 
+    async has(key) {
+        const exists = this.rawCache.has(key);
+        if (exists) {
+            return {
+                path: key
+            }
+        }
+        return null;
+    }
+
     /**
      * Flushes cached data.
      * @abstract

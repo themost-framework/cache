@@ -1,1 +1,1 @@
-export * from './DiskCacheEntry';
+export * from './CacheEntry';

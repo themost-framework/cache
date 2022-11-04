@@ -1,15 +1,18 @@
 import { ConfigurationBase } from '@themost/common';
-import { DiskCacheStrategy, DiskCache, DiskCacheEntry } from '@themost/cache/platform-server';
+import { IndexedCacheStrategy, IndexedCache, CacheEntry } from '@themost/cache/platform-server';
+import { DataCacheStrategy } from '@themost/cache';
 import { QueryExpression } from '@themost/query';
 
 describe('DataCacheStrategy', () => {
 
     /**
-     * @type {DiskCacheStrategy}
+     * @type {IndexedCacheStrategy}
      */
     let service;
     beforeEach(() => {
-        service = new DiskCacheStrategy(new ConfigurationBase('.'));
+        const configuration = new ConfigurationBase('.');
+        configuration.useStrategy(DataCacheStrategy, IndexedCacheStrategy);
+        service = configuration.getStrategy(DataCacheStrategy);
     })
 
     afterEach(async () => {
@@ -17,9 +20,9 @@ describe('DataCacheStrategy', () => {
     });
 
     it('should try to create instance', async () => {
-        const service1 = new DiskCacheStrategy(new ConfigurationBase('.'));
+        const service1 = new IndexedCacheStrategy(new ConfigurationBase('.'));
         expect(service1).toBeTruthy();
-        expect(service1.rawCache).toBeInstanceOf(DiskCache);
+        expect(service1.rawCache).toBeInstanceOf(IndexedCache);
         await service1.finalize();
     });
 
@@ -70,17 +73,17 @@ describe('DataCacheStrategy', () => {
             }, 30 * 60);
         }
         const context = service.rawCache.createContext();
-        const cached = await context.model(DiskCacheEntry).where('path').equal('/api/Users/4').getItem();
+        const cached = await context.model(CacheEntry).where('path').equal('/api/Users/4').getItem();
         expect(cached).toBeTruthy();
         await context.db.executeAsync(
-            new QueryExpression().update(context.model(DiskCacheEntry).sourceAdapter).set(
+            new QueryExpression().update(context.model(CacheEntry).sourceAdapter).set(
                 {
                     expiredAt: new Date()
                 }
             ).where('path').equal('/api/Users/4')
         );
         await service.onCheck();
-        const deleted = await context.model(DiskCacheEntry).where('path').equal('/api/Users/4').getItem();
+        const deleted = await context.model(CacheEntry).where('path').equal('/api/Users/4').getItem();
         expect(deleted).toBeFalsy();
         await context.finalize();
         

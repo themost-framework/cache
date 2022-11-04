@@ -4,7 +4,7 @@ export declare interface OutputCacheConfiguration {
     duration?: number;
     location?: 'any' | 'server' | 'client' | 'serverAndClient' | 'none';
     noStore?: boolean;
-    varyByContentEncoding?: string[];
+    varyByContentEncoding?: string;
     varyByHeader?: string[];
     varyByParam?: string[];
     varyByCallback?: (context: any) => Promise<string>;

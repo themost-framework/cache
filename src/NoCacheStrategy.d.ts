@@ -10,6 +10,7 @@ export declare class NoCacheStrategy extends ConfigurationStrategy implements Da
     clear(): Promise<any>;
     get(key: string | CompositeCacheKey): Promise<any>;
     getOrDefault(key: string | CompositeCacheKey, getFunc: GetItemFunction, absoluteExpiration?: number): Promise<any>;
+    has(key: string | CompositeCacheKey): Promise<CompositeCacheKey>;
     finalize(): Promise<void>;
     
 }

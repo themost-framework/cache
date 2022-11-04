@@ -60,6 +60,17 @@ class DataCacheStrategy extends ConfigurationStrategy {
     }
 
     /**
+     * 
+     * Gets a cached value defined by the given key.
+     * @param {string|CompositeCacheKey} key
+     * @returns {Promise<CompositeCacheKey>}
+     */
+    // eslint-disable-next-line no-unused-vars
+    async has(key) {
+        throw new AbstractMethodError();
+    }
+
+    /**
      * Returns an item which is going to be added to cache
      * @function
      * @name GetItemFunction

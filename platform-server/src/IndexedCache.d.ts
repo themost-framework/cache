@@ -1,10 +1,10 @@
 import { ConfigurationBase } from '@themost/common';
 import { DataApplication, DefaultDataContext } from '@themost/data';
 
-export declare class DiskCacheContext extends DefaultDataContext {
+export declare class IndexedCacheContext extends DefaultDataContext {
     //
 }
 
-export declare class DiskCache extends DataApplication {
+export declare class IndexedCache extends DataApplication {
     constructor(containerConfiguration: ConfigurationBase);
 }

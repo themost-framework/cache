@@ -5,23 +5,27 @@ import { DataCacheStrategy, NoCacheStrategy } from '@themost/cache';
 import path from 'path';
 import mkdirp from 'mkdirp';
 
-class DiskCacheContext extends DefaultDataContext {
+class IndexedCacheContext extends DefaultDataContext {
     constructor() {
         super()
     }
 }
 
-class DiskCache extends DataApplication {
+class ContainerConfiguration {
+
+}
+
+class IndexedCache extends DataApplication {
 
     static get DefaultRootDir() {
-        return '.cache/diskCache';
+        return '.cache/indexedCache';
     }
 
     /**
      * @param {import('@themost/common').ConfigurationBase=} containerConfiguration 
      */
     constructor(containerConfiguration) {
-        super(DiskCache.DefaultRootDir);
+        super(IndexedCache.DefaultRootDir);
         // set jspa imports
         this.configuration.setSourceAt('settings/jspa/imports', [
             path.resolve(__dirname, './models/index')
@@ -40,7 +44,7 @@ class DiskCache extends DataApplication {
                 type: '@themost/sqlite'
             }
         ]);
-        const rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || DiskCache.DefaultRootDir;
+        const rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || IndexedCache.DefaultRootDir;
         const finalRootDir = path.resolve(process.cwd(), rootDir);
         mkdirp.sync(finalRootDir);
         this.configuration.setSourceAt('adapters', [
@@ -69,10 +73,14 @@ class DiskCache extends DataApplication {
         }
         // disable internal cache
         this.configuration.useStrategy(DataCacheStrategy, NoCacheStrategy);
+        // get container cache
+        this.configuration.useStrategy(ContainerConfiguration, function() {
+            return containerConfiguration;
+        });
     }
 
     createContext() {
-        const context = new DiskCacheContext();
+        const context = new IndexedCacheContext();
         context.getConfiguration = () => {
             return this.configuration;
         };
@@ -81,6 +89,6 @@ class DiskCache extends DataApplication {
 }
 
 export {
-    DiskCacheContext,
-    DiskCache
+    IndexedCacheContext,
+    IndexedCache
 }
