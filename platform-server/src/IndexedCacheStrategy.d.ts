@@ -1,9 +1,8 @@
 import { DataCacheStrategy, DataCacheFinalize, GetItemFunction, CompositeCacheKey } from '@themost/cache';
-import {ConfigurationBase} from "@themost/common";
+import {ConfigurationBase} from '@themost/common';
 import { IndexedCache } from './IndexedCache';
-import { CacheItem, CacheReader, CacheWriter, CacheReaderWriter } from '@themost/cache';
 
-export declare class IndexedCacheStrategy extends DataCacheStrategy implements DataCacheFinalize, CacheReader, CacheWriter {
+export declare class IndexedCacheStrategy extends DataCacheStrategy implements DataCacheFinalize {
 
     constructor(configuration: ConfigurationBase);
     rawCache: IndexedCache;

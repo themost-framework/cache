@@ -1,4 +1,4 @@
-import { DataCacheStrategy, DataObject } from '@themost/data';
+import { DataObject } from '@themost/data';
 import { Args, Guid, TraceUtils } from '@themost/common';
 import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove, EntityListeners } from '@themost/jspa';
 import { MD5 } from 'crypto-js';
