@@ -5,6 +5,6 @@ export declare class IndexedCacheContext extends DefaultDataContext {
     //
 }
 
-export declare class IndexedCache extends DataApplication {
+export declare class IndexedCache extends DataApplication implements CacheReaderWriter {
     constructor(containerConfiguration: ConfigurationBase);
 }
