@@ -3,3 +3,4 @@ export * from './IndexedCache';
 export * from './DefaultDataCacheStrategy';
 export * from './IndexedCacheStrategy';
 export * from './OutputCaching';
+export * from './DiskCacheReader';

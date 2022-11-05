@@ -2,6 +2,7 @@ import { DataCacheStrategy, DataObject } from '@themost/data';
 import { Args, Guid, TraceUtils } from '@themost/common';
 import { Id, Entity, Column, Formula, ColumnDefault, Table, PostRemove, EntityListeners } from '@themost/jspa';
 import { MD5 } from 'crypto-js';
+import { DataCacheReaderWriter } from '@themost/cache';
 
 const moment = require('moment');
 
@@ -186,11 +187,11 @@ class CacheEntry extends DataObject {
      */
     async read() {
         /**
-         * @type {import('@themost/cache').CacheReader}
+         * @type {DataCacheReaderWriter}
          */
-         const cache = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheStrategy);
-         Args.check(typeof cache.read === 'function', new Error('Application cache strategy does not support reading cache.'));
-         return cache.read(this);
+         const reader = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheReaderWriter);
+         Args.check(reader != null, new Error('Application cache strategy does not support reading cache.'));
+         return reader.read(this);
     }
 
     /**
@@ -199,11 +200,11 @@ class CacheEntry extends DataObject {
      */
     async unlink() {
         /**
-         * @type {import('@themost/cache').CacheWriter}
+         * @type {DataCacheReaderWriter}
          */
-         const cache = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheStrategy);
-         Args.check(typeof cache.unlink === 'function', new Error('Application cache strategy does not support writing cache.'));
-         return cache.unlink(this);
+         const reader = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheReaderWriter);
+         Args.check(reader != null, new Error('Application cache strategy does not support writing cache.'));
+         return reader.unlink(this);
     }
 
     /**
@@ -212,12 +213,12 @@ class CacheEntry extends DataObject {
      * @returns Promise<void>
      */
     async write(content) {
-        /**
-         * @type {import('@themost/cache').CacheWriter}
+       /**
+         * @type {DataCacheReaderWriter}
          */
-        const cache = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheStrategy);
-        Args.check(typeof cache.write === 'function', new Error('Application cache strategy does not support writing cache.'));
-        return cache.write(this, content);
+        const reader = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheReaderWriter);
+        Args.check(reader != null, new Error('Application cache strategy does not support writing cache.'));
+        return reader.write(this, content);
     }
 
 }

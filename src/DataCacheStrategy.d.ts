@@ -43,12 +43,3 @@ export declare interface CacheItem {
     entityTag?: Date;
 }
 
-
-export declare interface CacheReader {
-    read(entry: CacheItem): Promise<Buffer>;
-}
-
-export declare interface CacheWriter {
-    write(entry: CacheItem, content: string | ArrayBufferView): Promise<void>;
-    unlink(entry: CacheItem): Promise<void>;
-}

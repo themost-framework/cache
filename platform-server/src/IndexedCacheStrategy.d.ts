@@ -1,7 +1,7 @@
 import { DataCacheStrategy, DataCacheFinalize, GetItemFunction, CompositeCacheKey } from '@themost/cache';
 import {ConfigurationBase} from "@themost/common";
 import { IndexedCache } from './IndexedCache';
-import { CacheItem, CacheReader, CacheWriter } from '@themost/cache';
+import { CacheItem, CacheReader, CacheWriter, CacheReaderWriter } from '@themost/cache';
 
 export declare class IndexedCacheStrategy extends DataCacheStrategy implements DataCacheFinalize, CacheReader, CacheWriter {
 
@@ -15,8 +15,5 @@ export declare class IndexedCacheStrategy extends DataCacheStrategy implements D
     has(key: string | CompositeCacheKey): Promise<CompositeCacheKey>;
     getOrDefault(key: string | CompositeCacheKey, getFunc: GetItemFunction, absoluteExpiration?: number): Promise<any>;
     finalize(): Promise<void>;
-    read(entry: CacheItem): Promise<Buffer>;
-    write(entry: CacheItem, content: string | ArrayBufferView): Promise<void>;
-    unlink(entry: CacheItem): Promise<void>;
 
 }

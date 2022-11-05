@@ -11,8 +11,7 @@ describe('DataCacheStrategy', () => {
     let service;
     beforeEach(() => {
         const configuration = new ConfigurationBase('.');
-        configuration.useStrategy(DataCacheStrategy, IndexedCacheStrategy);
-        service = configuration.getStrategy(DataCacheStrategy);
+        service = new IndexedCacheStrategy(configuration);
     })
 
     afterEach(async () => {
