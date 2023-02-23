@@ -1,6 +1,5 @@
 import { ConfigurationBase } from '@themost/common';
 import { IndexedCacheStrategy, IndexedCache, CacheEntry } from '@themost/cache/platform-server';
-import { DataCacheStrategy } from '@themost/cache';
 import { QueryExpression } from '@themost/query';
 
 describe('DataCacheStrategy', () => {
