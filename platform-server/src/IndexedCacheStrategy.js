@@ -125,6 +125,9 @@ class IndexedCacheStrategy extends DataCacheStrategy {
                  * @type {CacheEntry}
                  */
                 const target = event.model.convert(event.target);
+                if (target && target.location === 'client') {
+                    return;
+                }
                 // write content
                 if (value instanceof Buffer) {
                     await target.write(value);
