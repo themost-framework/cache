@@ -49,7 +49,7 @@ class DiskCacheReader extends DataCacheReaderWriter {
     }
 
     /**
-     * @param {import('@themost/cache').CacheItem} entry 
+     * @param {import('@themost/cache').CacheItem|void} entry
      */
     async unlink(entry) {
         Args.check(Guid.isGuid(entry.id), 'Entry identifier must be a valid uuid at this context');
@@ -71,7 +71,7 @@ class DiskCacheReader extends DataCacheReaderWriter {
             return await unlinkAsync(filePath);
         } catch (err) {
             if (err.code === 'ENOENT') {
-                return;
+                return void 0;
             }
             throw err;
         }

@@ -21,6 +21,8 @@ export declare class OutputCaching {
     static setup(config: OutputCacheConfiguration): Handler;
     static setup(service: DataCacheStrategy): Handler;
     static cache(options?: any): Handler;
+    static cacheMany(paths: [string, PreOutputCacheConfiguration][] ): Handler;
+    static cacheMany(paths: Map<string, PreOutputCacheConfiguration> ): Handler;
 } 
 
 declare global {
@@ -35,7 +37,6 @@ declare global {
                 headers?: string;
                 params?: string;
                 customParams?: string;
-                duration?: number;
                 entityTag?: string;
             }
         }
