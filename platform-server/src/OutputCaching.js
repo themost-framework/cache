@@ -363,6 +363,20 @@ class OutputCaching {
         }
     }
 
+    /**
+     * @param {Map|Array} paths
+     * @returns {import('@types/express').Handler}
+     */
+    cacheMany(paths) {
+        /**
+         * @type {Map<string, import('./OutputCaching').PreOutputCacheConfiguration>|Map}
+         */
+        const cachePaths = Array.isArray(paths) ? new Map(paths) : paths;
+        return (req, res, next) => {
+            return cachePaths.has(req.path) ? OutputCaching.cache(cachePaths.get(req.path))(req, res, next) : next();
+        }
+    }
+
 
 
 }

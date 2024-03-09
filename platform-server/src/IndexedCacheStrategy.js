@@ -46,7 +46,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
             }
             this.checkingPeriod = true;
             this.onCheck().catch((err) => {
-                TraceUtils.error('An error occured while checking expiration of disk cache entries');
+                TraceUtils.error('An error occurred while checking expiration of disk cache entries');
                 TraceUtils.error(err);
             }).finally(() => {
                 this.checkingPeriod = false;
@@ -236,8 +236,8 @@ class IndexedCacheStrategy extends DataCacheStrategy {
     }
 
     /**
-     * @param {string|CompositeKey} key 
-     * @returns {Promise<CompositeKey>}
+     * @param {string|import('@themost/cache').CompositeCacheKey} key
+     * @returns {Promise<import('@themost/cache').CompositeCacheKey>}
      */
     async has(key) {
         //
