@@ -49,6 +49,15 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      */
     async remove(key) {
         // noinspection JSCheckFunctionSignatures
+        if (/\*/.test(key)) {
+            const reKey = new RegExp(key.replace(/\*/g, '.*'));
+            const keys = this.rawCache.keys();
+            const delKeys = keys.filter((k) => {
+                return reKey.test(k);
+            });
+            const delCount = this.rawCache.del(delKeys);
+            return !!delCount;
+        }
         const count = this.rawCache.del(key);
         return !!count;
     }
