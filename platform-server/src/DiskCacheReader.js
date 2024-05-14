@@ -68,7 +68,7 @@ class DiskCacheReader extends DataCacheReaderWriter {
             // validate
             Args.check(stats.isFile(), 'Entry cannot be found or is inaccessible');
             // and return
-            return await unlinkAsync(filePath);
+            await unlinkAsync(filePath);
         } catch (err) {
             if (err.code === 'ENOENT') {
                 return void 0;
@@ -80,7 +80,7 @@ class DiskCacheReader extends DataCacheReaderWriter {
     /**
      * @param {import('@themost/cache').CacheItem} entry 
      * @param {*} content 
-     * @returns Promise<string>
+     * @returns Promise<void>
      */
     async write(entry, content) {
         Args.check(Guid.isGuid(entry.id), 'Entry identifier must be a valid uuid at this context');
@@ -94,6 +94,7 @@ class DiskCacheReader extends DataCacheReaderWriter {
         // get file path
         const filePath = path.resolve(finalFileDir, fileName);
         // and write file
+        // noinspection JSCheckFunctionSignatures
         await writeFileAsync(filePath, content, 'binary');
     }
 

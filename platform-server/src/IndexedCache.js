@@ -42,6 +42,11 @@ class IndexedCache extends DataApplication {
                 name: 'Sqlite Data Adapter',
                 invariantName: 'sqlite',
                 type: '@themost/sqlite'
+            },
+            {
+                name: 'Connection Pool',
+                invariantName: 'pool',
+                type: '@themost/pool'
             }
         ]);
         const rootDir = containerConfiguration.getSourceAt('settings/cache/rootDir') || IndexedCache.DefaultRootDir;
@@ -50,10 +55,19 @@ class IndexedCache extends DataApplication {
         this.configuration.setSourceAt('adapters', [
             {
                 name: 'cache',
-                default: true,
+                default: false,
                 invariantName: 'sqlite',
                 options: {
                     database: path.resolve(finalRootDir, 'index.db')
+                }
+            },
+            {
+                name: 'cache+pool',
+                default: true,
+                invariantName: 'pool',
+                options: {
+                    adapter: 'cache',
+                    max: 1,
                 }
             }
         ]);
@@ -65,6 +79,9 @@ class IndexedCache extends DataApplication {
         this.configuration.useStrategy(ModuleLoaderStrategy, function NodeModuleLoader() {
             this.require = (id) => require(id)
         });
+        /**
+         * @type {import('@themost/cache').DataCacheFinalize|*}
+         */
         const cacheStrategy = this.configuration.getStrategy(DataCacheStrategy);
         if (cacheStrategy && typeof cacheStrategy.finalize === 'function') {
             cacheStrategy.finalize().then(() => {
@@ -86,6 +103,7 @@ class IndexedCache extends DataApplication {
         };
         return context;
     }
+
 }
 
 export {
