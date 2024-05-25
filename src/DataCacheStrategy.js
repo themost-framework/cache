@@ -48,6 +48,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
     }
 
     /* istanbul ignore next */
+    // noinspection JSUnusedLocalSymbols
     /**
      * 
      * Gets a cached value defined by the given key.
@@ -59,6 +60,7 @@ class DataCacheStrategy extends ConfigurationStrategy {
         throw new AbstractMethodError();
     }
 
+    // noinspection JSUnusedLocalSymbols
     /**
      * 
      * Gets a cached value defined by the given key.

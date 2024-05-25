@@ -204,7 +204,7 @@ class CacheEntry extends DataObject {
          */
          const reader = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheReaderWriter);
          Args.check(reader != null, new Error('Application cache strategy does not support writing cache.'));
-         return reader.unlink(this);
+         await reader.unlink(this);
     }
 
     /**
@@ -218,7 +218,7 @@ class CacheEntry extends DataObject {
          */
         const reader = this.context.getConfiguration().getStrategy(ContainerConfiguration).getStrategy(DataCacheReaderWriter);
         Args.check(reader != null, new Error('Application cache strategy does not support writing cache.'));
-        return reader.write(this, content);
+        await reader.write(this, content);
     }
 
 }

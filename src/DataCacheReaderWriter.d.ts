@@ -18,6 +18,6 @@ export declare interface CacheReaderWriter extends CacheReader, CacheWriter {
 
 export declare abstract class DataCacheReaderWriter extends ConfigurationStrategy implements CacheReaderWriter {
     abstract read(entry: CacheItem): Promise<Buffer>;
-    abstract write(enry: CacheItem, content: string | ArrayBufferView): Promise<void>;
+    abstract write(entry: CacheItem, content: string | ArrayBufferView): Promise<void>;
     abstract unlink(entry: CacheItem): Promise<void>;
 } 

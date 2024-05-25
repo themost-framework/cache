@@ -25,6 +25,7 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @returns {Promise<any>}
      */
     async get(key) {
+        // noinspection JSCheckFunctionSignatures
         return this.rawCache.get(key);
     }
     
@@ -37,7 +38,8 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @returns {Promise<void>}
      */
     async add(key, value, absoluteExpiration) {
-        this.rawCache.set(key, value, absoluteExpiration);   
+        // noinspection JSCheckFunctionSignatures
+        this.rawCache.set(key, value, absoluteExpiration);
     }
     /**
      * Removes a cached value.
@@ -46,13 +48,25 @@ class DefaultDataCacheStrategy extends DataCacheStrategy {
      * @returns {Promise<any>}
      */
     async remove(key) {
+        // noinspection JSCheckFunctionSignatures
+        if (/\*/.test(key)) {
+            const reKey = new RegExp(key.replace(/\*/g, '.*'));
+            const keys = this.rawCache.keys();
+            const delKeys = keys.filter((k) => {
+                return reKey.test(k);
+            });
+            const delCount = this.rawCache.del(delKeys);
+            return !!delCount;
+        }
         const count = this.rawCache.del(key);
         return !!count;
     }
 
     async has(key) {
+        // noinspection JSCheckFunctionSignatures
         const exists = this.rawCache.has(key);
         if (exists) {
+            // noinspection JSValidateTypes
             return {
                 path: key
             }

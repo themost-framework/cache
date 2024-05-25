@@ -1,9 +1,9 @@
 import { DataCacheStrategy, DataCacheReaderWriter } from '@themost/cache';
-import { TraceUtils, LangUtils } from '@themost/common';
+import { TraceUtils, LangUtils, RandomUtils } from '@themost/common';
 import { QueryExpression } from '@themost/query';
 import { DiskCacheReader } from './DiskCacheReader';
 import { IndexedCache } from './IndexedCache';
-import { CacheEntry } from './models/CacheEntry';
+import { CacheEntry } from './models';
 
 class IndexedCacheStrategy extends DataCacheStrategy {
 
@@ -12,7 +12,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
      */
     absoluteExpiration = 1200; // 20 minutes
     /**
-     * @type {NodeJS.Timer}
+     * @type {NodeJS.Timeout}
      */
     killCheckPeriod;
     /**
@@ -26,7 +26,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
     rawCache
 
     /**
-     * @param {import('@themost/common').ConfigurationBase}
+     * @param {import('@themost/common').ConfigurationBase} configuration
      */
     constructor(configuration) {
         super(configuration);
@@ -40,13 +40,15 @@ class IndexedCacheStrategy extends DataCacheStrategy {
             this.absoluteExpiration = expiration;
         }
         this.rawCache = new IndexedCache(configuration);
+        // random interval
+        checkPeriod += RandomUtils.randomInt(0, 16);
         this.killCheckPeriod = setInterval(() => {
             if (this.checkingPeriod) {
                 return;
             }
             this.checkingPeriod = true;
             this.onCheck().catch((err) => {
-                TraceUtils.error('An error occured while checking expiration of disk cache entries');
+                TraceUtils.error('An error occurred while checking expiration of disk cache entries');
                 TraceUtils.error(err);
             }).finally(() => {
                 this.checkingPeriod = false;
@@ -61,7 +63,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
 
     async onCheck() {
         /**
-         * @type {import('./IndexedCache').IndexedCache}
+         * @type {import('./IndexedCache').IndexedCache|*}
          */
          let context;
          try {
@@ -72,7 +74,8 @@ class IndexedCacheStrategy extends DataCacheStrategy {
                      {
                          doomed: true
                      }
-                 ).where('expiredAt').lowerOrEqual(new Date())
+                 ).where('expiredAt').lowerOrEqual(new Date()),
+                 []
              );
              const items = await context.model(CacheEntry).where('doomed').equal(true).select('id').getItems();
              if (items.length) {
@@ -95,7 +98,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
      */
     async add(key, value, absoluteExpiration) {
         /**
-         * @type {import('./IndexedCache').IndexedCacheContext}
+         * @type {import('./IndexedCache').IndexedCacheContext|*}
          */
         let context;
         try {
@@ -153,7 +156,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
      */
     async get(key) {
         /**
-         * @type {import('./IndexedCache').IndexedCacheContext}
+         * @type {import('./IndexedCache').IndexedCacheContext|*}
          */
          let context;
          try {
@@ -178,7 +181,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
               */
              const item = await context.model(CacheEntry).find(entry).getTypedItem();
              if (item == null) {
-                return null;
+                return undefined;
              }
              if (typeof key !== 'string') {
                 Object.assign(key, entry);
@@ -186,7 +189,8 @@ class IndexedCacheStrategy extends DataCacheStrategy {
              // get file content
              const buffer = await item.read();
              if (item.contentEncoding && item.contentEncoding.startsWith('application/json')) {
-                return JSON.parse(buffer);
+                // noinspection JSCheckFunctionSignatures
+                 return JSON.parse(buffer);
              }
              return buffer;
  
@@ -203,7 +207,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
      */
     async remove(key) {
         /**
-         * @type {import('./IndexedCache').IndexedCache}
+         * @type {import('./IndexedCache').IndexedCache|*}
          */
          let context;
          try {
@@ -211,10 +215,33 @@ class IndexedCacheStrategy extends DataCacheStrategy {
              let entry;
              if (typeof key === 'string') {
                  entry = {
-                     path: key,
-                     headers: null,
-                     params: null,
-                     customParams: null
+                     path: key
+                 }
+                 if (/\*/.test(key)) {
+                     const paths = key.split('*');
+                     // get path with maximum length
+                     let entryPath = paths[0];
+                     paths.forEach((path) => {
+                         if (path.length > entryPath.length) {
+                             entryPath = path;
+                         }
+                     });
+                     // convert expression to starts with or ends with
+                     /**
+                      * @type {import('@themost/data').DataQueryable}
+                      */
+                     const q = context.model(CacheEntry).where('path').contains(entryPath).equal(true);
+                     // get items
+                     const items = await q.getAllItems();
+                     // filter items that match the expression
+                     const rePath = new RegExp(key.replace(/\*/g, '.*'));
+                     for (const item of items) {
+                         if (rePath.test(item.path)) {
+                             // remove item
+                             await context.model(CacheEntry).remove(item);
+                         }
+                     }
+                     return;
                  }
              } else {
                  entry = Object.assign({}, key);
@@ -236,13 +263,13 @@ class IndexedCacheStrategy extends DataCacheStrategy {
     }
 
     /**
-     * @param {string|CompositeKey} key 
-     * @returns {Promise<CompositeKey>}
+     * @param {string|import('@themost/cache').CompositeCacheKey} key
+     * @returns {Promise<import('@themost/cache').CompositeCacheKey>}
      */
     async has(key) {
         //
         /**
-         * @type {import('./IndexedCache').IndexedCache}
+         * @type {import('./IndexedCache').IndexedCache|*}
          */
          let context;
          let entry;
@@ -271,7 +298,19 @@ class IndexedCacheStrategy extends DataCacheStrategy {
 
     // eslint-disable-next-line no-unused-vars
     async clear() {
-        //
+        let context;
+        try {
+            context = this.rawCache.createContext();
+            const deleteItems = await context.model(CacheEntry).select('id').getAllItems();
+            for (const item of deleteItems) {
+                await context.model(CacheEntry).remove(item);
+            }
+        }
+        finally {
+            if (context) {
+                await context.finalizeAsync();
+            }
+        }
     }
 
     finalize() {
@@ -281,7 +320,7 @@ class IndexedCacheStrategy extends DataCacheStrategy {
     }
 
     /**
-     * @param {string|CompositeKey} key 
+     * @param {string|import('@themost/cache').CompositeKey} key
      * @returns Promise<import('@themost/cache').CacheEntry>
      */
     async find(key) {
