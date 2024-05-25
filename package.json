@@ -28,9 +28,9 @@
   "peerDependencies": {
     "@themost/common": "^2",
     "@themost/data": "^2",
+    "@themost/pool": "^2",
     "@themost/query": "^2",
     "@themost/sqlite": "^2",
-    "@themost/pool": "^2",
     "@themost/xml": "^2"
   },
   "engines": {

@@ -1,5 +1,5 @@
 import { DataCacheStrategy, DataCacheReaderWriter } from '@themost/cache';
-import { TraceUtils, LangUtils } from '@themost/common';
+import { TraceUtils, LangUtils, RandomUtils } from '@themost/common';
 import { QueryExpression } from '@themost/query';
 import { DiskCacheReader } from './DiskCacheReader';
 import { IndexedCache } from './IndexedCache';
@@ -40,6 +40,8 @@ class IndexedCacheStrategy extends DataCacheStrategy {
             this.absoluteExpiration = expiration;
         }
         this.rawCache = new IndexedCache(configuration);
+        // random interval
+        checkPeriod += RandomUtils.randomInt(0, 16);
         this.killCheckPeriod = setInterval(() => {
             if (this.checkingPeriod) {
                 return;
